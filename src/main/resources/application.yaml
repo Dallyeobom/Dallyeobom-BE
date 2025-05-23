@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: Dallyeobom
+  profiles:
+    include:
+      - database
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 11MB
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  threads:
+    virtual:
+      enabled: true
+server:
+  error:
+    whitelabel:
+      enabled: false
+  shutdown: graceful
+management:
+  server:
+    port: 8888
+  endpoints:
+    web:
+      exposure:
+        include: httpexchanges
+
+springdoc:
+  swagger-ui:
+    tagsSorter: alpha
+    enabled: true
