@@ -5,6 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("plugin.jpa") version "2.1.21"
     id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
+    id("com.google.cloud.tools.jib") version "3.4.5"
 }
 
 group = "kr"
@@ -13,6 +14,28 @@ version = "0.0.1-SNAPSHOT"
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+jib {
+    from {
+        image = "eclipse-temurin:21-jre"
+        platforms {
+            platform {
+                architecture = "arm64"
+                os = "linux"
+            }
+        }
+    }
+    to {
+        image = "Dallyeobom/Dallyeobom-BE:latest"
+        auth {
+            username = System.getenv("DOCKER_USERNAME") ?: ""
+            password = System.getenv("DOCKER_PASSWORD") ?: ""
+        }
+    }
+    container {
+        environment = mapOf("TZ" to "Asia/Seoul")
     }
 }
 
@@ -27,6 +50,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Secret & Config
     implementation("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0")

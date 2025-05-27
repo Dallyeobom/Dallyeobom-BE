@@ -1,0 +1,9 @@
+spring:
+  profiles:
+    active: real
+  config:
+    import: 'optional:aws-parameterstore:/config/Dallyeobom'
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
