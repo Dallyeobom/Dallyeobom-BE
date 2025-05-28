@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dallyeobom-api
+  namespace: stable
+spec:
+  progressDeadlineSeconds: 900
+  selector:
+    matchLabels:
+      app: dallyeobom-api
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  revisionHistoryLimit: 3
+  template:
+    metadata:
+      labels:
+        app: dallyeobom-api
+    spec:
+      containers:
+        - image: ghcr.io/dallyeobom/dallyeobom_be:latest
+          imagePullPolicy: Always
+          name: dallyeobom-api
+          resources:
+            limits:
+              cpu: 800m
+              memory: 2048Mi
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_NAME
+              value: dallyeobom-api
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: dallyeobom-secret
+                  key: awsSecretKey
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: dallyeobom-secret
+                  key: awsAccessKey
+            - name: JAVA_TOOL_OPTIONS
+              value: >
+                -XX:InitialRAMPercentage=50
+                -XX:MaxRAMPercentage=50
+                -XX:MinRAMPercentage=50
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /ready
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /health
+            initialDelaySeconds: 130
+            timeoutSeconds: 10
+            failureThreshold: 10
+      volumes:
+        - name: share-vol
+          emptyDir: {}
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      nodeSelector:
+        performance: high
