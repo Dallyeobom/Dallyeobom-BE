@@ -41,6 +41,6 @@ val PERMITTED_URL_PATTERNS =
         "/health",
         "/ready",
         "/swagger-ui/**",
-        "/v3/api-docs/**",
+        "/api-docs/**",
         "/api/v1/auth/temporal/**",
     )

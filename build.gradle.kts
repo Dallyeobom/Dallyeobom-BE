@@ -28,7 +28,7 @@ jib {
         }
     }
     to {
-        image = "Dallyeobom/Dallyeobom-BE:latest"
+        image = "ghcr.io/dallyeobom/dallyeobom_be:latest"
         auth {
             username = System.getenv("DOCKER_USERNAME") ?: ""
             password = System.getenv("DOCKER_PASSWORD") ?: ""
