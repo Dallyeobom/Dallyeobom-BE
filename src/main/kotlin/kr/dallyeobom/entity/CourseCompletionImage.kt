@@ -19,7 +19,7 @@ class CourseCompletionImage(
     @JoinColumn(nullable = false, updatable = false)
     val completion: CourseCompletionHistory,
     @Column(nullable = false, updatable = false, length = 50)
-    var image: String,
+    val image: String,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)

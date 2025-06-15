@@ -17,8 +17,8 @@ import org.locationtech.jts.geom.Point
 
 @Entity
 @Table
-@SQLDelete(sql = "UPDATE course SET DELETED_DATE_TIME = current_timestamp WHERE id = ?")
-@SQLRestriction("DELETED_DATE_TIME IS NULL")
+@SQLDelete(sql = "UPDATE course SET deleted_datetime = current_timestamp WHERE id = ?")
+@SQLRestriction("deleted_datetime IS NULL")
 class Course(
     @Column(nullable = false, length = 20)
     var name: String,
