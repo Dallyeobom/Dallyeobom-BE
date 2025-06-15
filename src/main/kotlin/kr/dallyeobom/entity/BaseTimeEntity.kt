@@ -26,3 +26,16 @@ abstract class BaseModifiableEntity : BaseTimeEntity() {
     lateinit var updatedDateTime: LocalDateTime
         protected set
 }
+
+/*
+* Soft Delete를 지원해야하는 엔티티가 상속받는 클래스
+* 해당 클래스를 상속받는 엔티티들은 아래와 같은 어노테이션 2개를 붙혀서 사용해야한다
+* @SQLDelete(sql = "UPDATE <TABLE_NAME> SET deleted_datetime = current_timestamp WHERE id = ?")
+* @SQLRestriction("deleted_datetime IS NULL")
+* */
+@MappedSuperclass
+abstract class BaseSoftDeletableEntity : BaseModifiableEntity() {
+    @Column(name = "deleted_datetime", nullable = true)
+    var deletedDateTime: LocalDateTime? = null
+        protected set
+}

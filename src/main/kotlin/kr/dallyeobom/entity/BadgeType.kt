@@ -8,12 +8,12 @@ import jakarta.persistence.Id
 import jakarta.persistence.Table
 
 @Entity
-@Table(
-    name = "users", // Oracle에선 user라는 이름이 예약어라 users로 변경
-)
-class User(
-    @Column(length = 20, nullable = false, updatable = false, unique = true)
-    val nickname: String,
+@Table
+class BadgeType(
+    @Column(nullable = false, unique = true, updatable = false, length = 50)
+    val name: String,
+    @Column(nullable = false, length = 100)
+    var description: String,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
