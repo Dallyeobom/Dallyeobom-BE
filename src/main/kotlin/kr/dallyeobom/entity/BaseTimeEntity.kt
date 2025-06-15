@@ -38,8 +38,4 @@ abstract class BaseSoftDeletableEntity : BaseModifiableEntity() {
     @Column(name = "deleted_dateTime", nullable = true)
     var deletedDateTime: LocalDateTime? = null
         protected set
-
-    fun delete() {
-        this.deletedDateTime = LocalDateTime.now()
-    }
 }
