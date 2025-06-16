@@ -7,6 +7,8 @@ spring:
     open-in-view: false
     properties:
       hibernate:
+        spatial:
+          connection_finder: kr.dallyeobom.util.ConnectionFinder # Oracle DB에서 Spatial 기능을 사용하기 위한 설정
         default_batch_fetch_size: 100
   datasource:
     driver-class-name: oracle.jdbc.OracleDriver

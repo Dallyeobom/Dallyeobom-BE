@@ -18,18 +18,18 @@ import org.locationtech.jts.geom.Point
 @SQLDelete(sql = "UPDATE course SET deleted_datetime = current_timestamp WHERE id = ?")
 @SQLRestriction("deleted_datetime IS NULL")
 class Course(
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, length = 30)
     var name: String,
     @Column(nullable = false, length = 500)
     var description: String,
     @Column(nullable = false)
     @Enumerated(EnumType.ORDINAL)
     var courseLevel: CourseLevel,
-    @Column(length = 50)
+    @Column(length = 60)
     var image: String?,
     @Column(nullable = false, length = 50)
     var location: String,
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 60)
     var overviewImage: String,
     @Column(nullable = false, updatable = false, length = 10)
     @Enumerated(EnumType.STRING)

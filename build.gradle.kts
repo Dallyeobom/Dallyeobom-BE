@@ -53,7 +53,7 @@ dependencies {
     implementation("org.hibernate.orm:hibernate-spatial:6.6.15.Final")
 
     // Secret & Config
-    implementation("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0")
+    implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0"))
     implementation("io.awspring.cloud:spring-cloud-aws-starter-parameter-store:3.3.0")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap:4.2.1")
 
@@ -64,6 +64,7 @@ dependencies {
     // Infrastructure
     implementation("com.oracle.database.jdbc:ojdbc11:23.8.0.25.04")
     implementation("org.redisson:redisson-spring-boot-starter:3.47.0")
+    implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.2.1") // 3.3버전에 이슈가 있어서 올리면 안됨
     // implementation("org.hibernate.search:hibernate-search-backend-elasticsearch:7.2.3.Final") // OpenSearch를 사용하게되면 주석 해제
 
     // JWT
@@ -73,6 +74,12 @@ dependencies {
 
     // Documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
+
+    // Utilities
+    implementation("io.jenetics:jpx:3.2.1")
+
+    // Map
+    implementation("com.google.maps:google-maps-services:2.2.0")
 
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
