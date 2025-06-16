@@ -7,8 +7,6 @@ import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
 import org.hibernate.annotations.SQLRestriction
@@ -36,9 +34,8 @@ class Course(
     @Column(nullable = false, updatable = false, length = 10)
     @Enumerated(EnumType.STRING)
     val creatorType: CourseCreatorType,
-    @ManyToOne
-    @JoinColumn(updatable = false)
-    val creator: User?,
+    @Column(updatable = false)
+    val creatorId: Long?,
     @Column(nullable = false)
     val length: Int,
     @Column(columnDefinition = "SDO_GEOMETRY", nullable = false, updatable = false)
