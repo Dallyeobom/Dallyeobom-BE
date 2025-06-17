@@ -1,14 +1,17 @@
 package kr.dallyeobom.controller.course
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.Positive
 import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import org.springdoc.core.annotations.ParameterObject
+import org.springframework.validation.annotation.Validated
 
 @Tag(name = SwaggerTag.COURSE)
 interface CourseControllerSpec {
@@ -26,9 +29,20 @@ interface CourseControllerSpec {
         description = "주변 코스를 검색합니다. 위도, 경도, 반경, 최대 응답 개수를 입력받아 해당 조건에 맞는 코스를 반환합니다.",
         responses = [
             ApiResponse(responseCode = "200", description = "주변 코스 검색 결과"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 위도 또는 경도가 범위를 벗어남  
+        • 검색 반경이 양수가 아님  
+        • 최대 응답 개수가 양수가 아님  
+      """,
+                content = arrayOf(Content()),
+            ),
         ],
     )
     fun searchNearByCourse(
+        @Validated
         @ParameterObject request: NearByCourseSearchRequest,
     ): List<NearByCourseSearchResponse>
 
@@ -37,9 +51,12 @@ interface CourseControllerSpec {
         description = "코스 ID를 입력받아 해당 코스의 상세 정보를 조회합니다.",
         responses = [
             ApiResponse(responseCode = "200", description = "코스 상세 정보"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 - 코스 ID가 양수가 아님", content = arrayOf(Content())),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 코스가 존재하지 않음", content = arrayOf(Content())),
         ],
     )
     fun getCourseDetail(
+        @Positive(message = "코스 ID는 양수여야 합니다.")
         @Schema(description = "상세조회 하고자 하는 코스의 ID", example = "1")
         id: Long,
     ): CourseDetailResponse
