@@ -50,8 +50,8 @@ class TourApiClient(
                 .build(true)
                 .toUri(),
         ).retrieve()
-        .body(CourseListResponse::class.java)!!
-        .response.body.items.item
+        .body(CourseListResponse::class.java)
+        ?.let { it.response.body.items.item }
 
     // 1km 반경 내에 있는 관광지 이미지 가져오기 - 그걸로 코스 대표 이미지로 사용
     fun getLocationImageUrl(latLng: LatLng) =
@@ -70,9 +70,10 @@ class TourApiClient(
                     .build(true)
                     .toUri(),
             ).retrieve()
-            .body(LocationImageResponse::class.java)!!
-            .response.body.items
-            ?.item
+            .body(LocationImageResponse::class.java)
+            ?.let {
+                it.response.body.items
+            }?.item
             ?.firstOrNull()
             ?.firstimage
 

@@ -9,6 +9,8 @@ import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseLevel
+import kr.dallyeobom.exception.BaseException
+import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import org.locationtech.jts.geom.Coordinate
@@ -35,8 +37,10 @@ class CourseService(
     // 관광데이터 API를 통해 경로를 가져오고, DB를 채워넣는 메소드
     // 해당 메소드는 멱등성보장이 되지 않는다. 따라서 여러번 호출하면 중복된 코스가 생성된다.
     fun createCoursesWithTourApi(): List<Course> {
-        val courses = tourApiClient.getCourseList()
-        return courses.map { course ->
+        val courses =
+            tourApiClient.getCourseList()
+                ?: throw BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "코스 리스트를 가져오는 데 실패했습니다. 관광데이터 API가 정상적으로 작동하는지 확인해주세요.")
+        return courses.mapNotNull { course ->
             val gpx = GPX.Reader.of(GPX.Reader.Mode.LENIENT).read(tourApiClient.getFileWithStream(course.gpxpath))
             val path =
                 gpx.tracks
@@ -49,15 +53,17 @@ class CourseService(
                         UUID.randomUUID().toString() + "." + // 중복나지 않도록 UUID 사용
                             imageUrl.split(".").last().lowercase(Locale.getDefault()) // 확장자 추출후 소문자로 통일
                     try {
-                        objectStorageRepository.upload(
-                            ObjectStorageRepository.COURSE_IMAGE_PATH,
-                            fileName,
-                            tourApiClient.getFileWithStream(imageUrl)!!,
-                        )
+                        tourApiClient.getFileWithStream(imageUrl)?.let { stream ->
+                            objectStorageRepository.upload(
+                                ObjectStorageRepository.COURSE_IMAGE_PATH,
+                                fileName,
+                                stream,
+                            )
+                        } ?: return@mapNotNull null // 이미지를 못받아오면 null로 처리
                     } catch (e: Exception) {
                         // 왜 인지 모르겠는데 해당 API가 실행 안되는 좌표들이 간혹 있다. 500에러 발생하면 재시도 해도 안됨
                         // 이 경우에는 null로 처리
-                        null
+                        return@mapNotNull null
                     }
                 }
             saveCourse(
@@ -139,7 +145,7 @@ class CourseService(
                         fileName,
                         ByteArrayInputStream(imageBytes),
                     ),
-                length = calculateTotalDistance(simplified),
+                length = calculateTotalDistance(courseDto.path),
                 startPoint = startPoint,
             ),
         )

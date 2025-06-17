@@ -3,14 +3,12 @@ package kr.dallyeobom.repository
 import io.awspring.cloud.s3.S3Template
 import kr.dallyeobom.config.properties.ObjectStorageProperties
 import org.springframework.stereotype.Repository
-import software.amazon.awssdk.services.s3.S3Client
 import java.io.InputStream
 
 @Repository
 class ObjectStorageRepository(
     private val objectStorageProperties: ObjectStorageProperties,
     private val s3Template: S3Template,
-    private val s3Client: S3Client,
 ) {
     fun upload(
         path: String,
@@ -29,7 +27,7 @@ class ObjectStorageRepository(
 
     // WARNING: 이 메소드는 모든 객체를 삭제합니다. 주의해서 사용하세요.
     fun deleteAll() {
-        s3Template.listObjects(objectStorageProperties.bucket, "").map { obj ->
+        s3Template.listObjects(objectStorageProperties.bucket, "").stream().parallel().map { obj ->
             delete(obj.filename)
         }
     }

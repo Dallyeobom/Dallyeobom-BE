@@ -35,8 +35,8 @@ class GoogleMapsClient(
             .reverseGeocode(context, latLng)
             .language("ko")
             .await()
-            .first()
-            .addressComponents
+            .firstOrNull()
+            ?.addressComponents ?: emptyArray()
 
     // 기본적으로 encodedPath와 color, weight를 동시에 사용할 수 없으나 우리는 필요하다
     // 따라서 StaticMapsRequest를 상속받아 새로운 메소드를 만든다
