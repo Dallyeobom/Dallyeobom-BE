@@ -27,7 +27,7 @@ class ObjectStorageRepository(
 
     // WARNING: 이 메소드는 모든 객체를 삭제합니다. 주의해서 사용하세요.
     fun deleteAll() {
-        s3Template.listObjects(objectStorageProperties.bucket, "").stream().parallel().map { obj ->
+        s3Template.listObjects(objectStorageProperties.bucket, "").parallelStream().forEach { obj ->
             delete(obj.filename)
         }
     }
