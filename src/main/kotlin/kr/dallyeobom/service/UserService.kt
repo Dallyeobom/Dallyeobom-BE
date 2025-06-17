@@ -1,5 +1,7 @@
 package kr.dallyeobom.service
 
+import kr.dallyeobom.client.KakaoApiClient
+import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val kakaoApiClient: KakaoApiClient,
     private val jwtUtil: JwtUtil,
 ) {
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
@@ -26,7 +29,7 @@ class UserService(
         if (userRepository.existsByNickname(request.nickName)) {
             throw AlreadyExistNicknameException()
         }
-        userRepository.save(User(request.nickName))
+        userRepository.save(User(request.nickName, ""))
     }
 
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
@@ -54,4 +57,21 @@ class UserService(
         jwtUtil.storeCachedRefreshTokenRotateId(user.id, rotateId)
         return ServiceTokensResponse(accessToken, refreshToken)
     }
+
+    @Transactional(readOnly = true)
+    fun kakaoLogin(code: String): KakaoLoginResponse {
+        val token = kakaoApiClient.getToken(code)
+        val kakaoProfile = token?.let { kakaoApiClient.getKakaoProfile(it.accessToken) }
+        val email = requireNotNull(kakaoProfile?.kakaoAccount?.email) { "이메일이 존재하지 않습니다" }
+        val user = userRepository.findByEmail(email)
+
+        return when {
+            user != null -> {
+                val tokens = makeTokens(user)
+                KakaoLoginResponse(tokens.accessToken, tokens.refreshToken, isNewUser = false)
+            }
+            else -> KakaoLoginResponse(isNewUser = true, email = kakaoProfile?.kakaoAccount?.email)
+        }
+    }
+
 }

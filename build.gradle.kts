@@ -51,11 +51,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.hibernate.orm:hibernate-spatial:6.6.15.Final")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     // Secret & Config
     implementation("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0")
     implementation("io.awspring.cloud:spring-cloud-aws-starter-parameter-store:3.3.0")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap:4.2.1")
+    implementation("me.paulschwarz:spring-dotenv:4.0.0") // secret manager가 없어 임시로 .env 파일로 키들을 설정하여 처리하였음
 
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
