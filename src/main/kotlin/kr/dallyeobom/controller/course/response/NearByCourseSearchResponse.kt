@@ -1,0 +1,30 @@
+package kr.dallyeobom.controller.course.response
+
+import io.swagger.v3.oas.annotations.media.Schema
+import kr.dallyeobom.entity.Course
+
+data class NearByCourseSearchResponse(
+    @Schema(description = "코스 ID", example = "1")
+    val id: Long,
+    @Schema(description = "코스명", example = "장충동 산5 15 Climb")
+    val name: String,
+    @Schema(description = "지역", example = "영등포구 대림동")
+    val location: String,
+    @Schema(description = "코스 썸네일(지도상에 코스 간략하게 나오는 사진)", example = "https://example.com/image.jpg")
+    val overViewImageUrl: String,
+    @Schema(description = "코스 길이 (미터 단위)", example = "15000")
+    val length: Int,
+) {
+    companion object {
+        fun from(
+            course: Course,
+            overViewImageUrl: String,
+        ) = NearByCourseSearchResponse(
+            id = course.id,
+            name = course.name,
+            location = course.location,
+            overViewImageUrl = overViewImageUrl,
+            length = course.length,
+        )
+    }
+}

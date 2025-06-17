@@ -4,5 +4,6 @@ package kr.dallyeobom.config.swagger
 object SwaggerTag {
     const val TERM: String = "A. 약관 API"
     const val AUTH: String = "B. 인증 API"
+    const val COURSE: String = "C. 코스 API"
     const val TEMPORAL_AUTH: String = "Y. 임시 인증 API"
 }
