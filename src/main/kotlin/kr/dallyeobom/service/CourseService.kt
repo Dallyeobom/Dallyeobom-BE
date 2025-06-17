@@ -40,7 +40,7 @@ class CourseService(
         val courses =
             tourApiClient.getCourseList()
                 ?: throw BaseException(ErrorCode.INTERNAL_SERVER_ERROR, "코스 리스트를 가져오는 데 실패했습니다. 관광데이터 API가 정상적으로 작동하는지 확인해주세요.")
-        return courses.mapNotNull { course ->
+        return courses.map { course ->
             val gpx = GPX.Reader.of(GPX.Reader.Mode.LENIENT).read(tourApiClient.getFileWithStream(course.gpxpath))
             val path =
                 gpx.tracks
@@ -59,11 +59,11 @@ class CourseService(
                                 fileName,
                                 stream,
                             )
-                        } ?: return@mapNotNull null // 이미지를 못받아오면 null로 처리
+                        }
                     } catch (e: Exception) {
                         // 왜 인지 모르겠는데 해당 API가 실행 안되는 좌표들이 간혹 있다. 500에러 발생하면 재시도 해도 안됨
                         // 이 경우에는 null로 처리
-                        return@mapNotNull null
+                        null
                     }
                 }
             saveCourse(
