@@ -1,4 +1,4 @@
-package kr.dallyeobom.config
+package kr.dallyeobom.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 

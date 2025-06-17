@@ -18,7 +18,7 @@ class CourseCompletionImage(
     @ManyToOne
     @JoinColumn(nullable = false, updatable = false)
     val completion: CourseCompletionHistory,
-    @Column(nullable = false, updatable = false, length = 50)
+    @Column(nullable = false, updatable = false, length = 60)
     val image: String,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
