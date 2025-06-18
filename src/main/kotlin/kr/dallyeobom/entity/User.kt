@@ -14,7 +14,7 @@ import jakarta.persistence.Table
 class User(
     @Column(length = 20, nullable = false, updatable = false, unique = true)
     val nickname: String,
-    @Column(nullable = false)
+    @Column(length = 30, nullable = false, updatable = false, unique = true)
     val email: String,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

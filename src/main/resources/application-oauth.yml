@@ -4,13 +4,14 @@ spring:
       client:
         registration:
           kakao:
-            redirect-uri: ${KAKAO_REDIRECT_URI}
+            redirect-uri: http://localhost:8080/api/v1/auth/login/kakao
             authorization-grant-type: authorization_code
             client-authentication-method: client_secret_post
             client-name: Kakao
             scope:
               - profile_nickname
               - account_email
+            provider: kakao
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize

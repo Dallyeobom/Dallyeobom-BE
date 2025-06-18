@@ -17,6 +17,10 @@ java {
     }
 }
 
+ktlint {
+    version.set("1.6.0")
+}
+
 jib {
     from {
         image = "eclipse-temurin:21-jre"
@@ -57,7 +61,6 @@ dependencies {
     implementation("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0")
     implementation("io.awspring.cloud:spring-cloud-aws-starter-parameter-store:3.3.0")
     implementation("org.springframework.cloud:spring-cloud-starter-bootstrap:4.2.1")
-    implementation("me.paulschwarz:spring-dotenv:4.0.0") // secret manager가 없어 임시로 .env 파일로 키들을 설정하여 처리하였음
 
     // Kotlin
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")

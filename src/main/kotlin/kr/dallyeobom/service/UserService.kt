@@ -70,8 +70,7 @@ class UserService(
                 val tokens = makeTokens(user)
                 KakaoLoginResponse(tokens.accessToken, tokens.refreshToken, isNewUser = false)
             }
-            else -> KakaoLoginResponse(isNewUser = true, email = kakaoProfile?.kakaoAccount?.email)
+            else -> KakaoLoginResponse(isNewUser = true, email = email)
         }
     }
-
 }
