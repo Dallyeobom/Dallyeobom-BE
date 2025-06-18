@@ -5,11 +5,15 @@ import com.google.maps.model.LatLng
 import io.jenetics.jpx.GPX
 import kr.dallyeobom.client.GoogleMapsClient
 import kr.dallyeobom.client.TourApiClient
+import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
+import kr.dallyeobom.controller.course.response.CourseDetailResponse
+import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseLevel
 import kr.dallyeobom.exception.BaseException
+import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
@@ -20,6 +24,7 @@ import java.io.ByteArrayInputStream
 import java.util.Locale
 import java.util.PriorityQueue
 import java.util.UUID
+import kotlin.jvm.optionals.getOrNull
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -234,6 +239,24 @@ class CourseService(
                 sin(dLng / 2).pow(2.0)
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
         return EARTH_RADIUS * c
+    }
+
+    fun searchNearByLocation(request: NearByCourseSearchRequest): List<NearByCourseSearchResponse> =
+        courseRepository
+            .findNearByCourseByLocation(
+                request.longitude,
+                request.latitude,
+                request.radius,
+                request.maxCount,
+            ).map { NearByCourseSearchResponse.from(it, objectStorageRepository.getDownloadUrl(it.overviewImage)) }
+
+    fun getCourseDetail(id: Long): CourseDetailResponse {
+        val course = courseRepository.findById(id).getOrNull() ?: throw CourseNotFoundException()
+        return CourseDetailResponse.from(
+            course,
+            course.image?.let { objectStorageRepository.getDownloadUrl(it) },
+            objectStorageRepository.getDownloadUrl(course.overviewImage),
+        )
     }
 
     companion object {
