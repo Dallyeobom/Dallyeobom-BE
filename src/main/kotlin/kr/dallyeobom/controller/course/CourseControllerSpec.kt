@@ -41,7 +41,7 @@ interface CourseControllerSpec {
             ),
         ],
     )
-    fun searchNearByCourse(
+    fun searchNearByLocation(
         @Validated
         @ParameterObject request: NearByCourseSearchRequest,
     ): List<NearByCourseSearchResponse>

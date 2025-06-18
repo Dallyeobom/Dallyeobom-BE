@@ -241,7 +241,7 @@ class CourseService(
         return EARTH_RADIUS * c
     }
 
-    fun searchNearByCourse(request: NearByCourseSearchRequest): List<NearByCourseSearchResponse> =
+    fun searchNearByLocation(request: NearByCourseSearchRequest): List<NearByCourseSearchResponse> =
         courseRepository
             .findNearByCourseByLocation(
                 request.longitude,
