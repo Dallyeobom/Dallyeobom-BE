@@ -3,6 +3,7 @@ package kr.dallyeobom.dto
 import com.google.maps.model.LatLng
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseLevel
+import kr.dallyeobom.entity.CourseVisibility
 import kr.dallyeobom.util.subStringOrReturn
 
 // 아래 DTO에만 데이터를 담아주면 나머지 데이터는 CourseService::saveCourse 메소드 내부에서 알아서 필요한 데이터 추출해서 사용함
@@ -15,6 +16,7 @@ data class CourseCreateDto(
     val creatorType: CourseCreatorType,
     val creatorId: Long?,
     val path: List<LatLng>,
+    val visibility: CourseVisibility,
 ) {
     // 길이 넘는건 자름
     val name = _name.subStringOrReturn(30)
