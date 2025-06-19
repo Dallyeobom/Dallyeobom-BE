@@ -11,6 +11,7 @@ import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.util.CourseCreteUtil
+import kr.dallyeobom.util.requireNull
 import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -34,6 +35,8 @@ class CourseCompletionHistoryService(
     ): CourseCompletionHistory {
         val course =
             if (request.courseId != null) {
+                requireNull(request.courseVisibility) { "코스 공개 설정 정보가 존재합니다" }
+                requireNull(request.courseCreateInfo) { "코스 생성 정보가 존재합니다" }
                 courseRepository.findById(request.courseId).getOrNull() ?: throw CourseNotFoundException()
             } else if (request.courseVisibility != CourseVisibility.PRIVATE) {
                 requireNotNull(request.courseCreateInfo) { "코스 생성 정보가 필요합니다." }

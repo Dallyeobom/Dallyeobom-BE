@@ -3,6 +3,7 @@ package kr.dallyeobom.controller.courseCompletionHistory.request
 import com.google.maps.model.LatLng
 import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.Positive
+import jakarta.validation.constraints.Size
 import kr.dallyeobom.dto.LatLngDto
 import kr.dallyeobom.entity.CourseLevel
 import kr.dallyeobom.entity.CourseVisibility
@@ -26,7 +27,7 @@ data class CourseCompletionCreateRequest(
         description = "코스 경로",
         example = "[{\"latitude\": 37.5665, \"longitude\": 126.978}, {\"latitude\": 37.567, \"longitude\": 126.979}]",
     )
-    @field:Length(min = 1, message = "경로는 최소 1개의 좌표가 필요합니다.")
+    @field:Size(min = 1, message = "경로는 최소 1개의 좌표가 필요합니다.")
     val path: List<LatLngDto>,
     @field:Schema(
         description = "완주한 코스 공개 설정 - courseId가 null인 경우에만 입력",
@@ -40,6 +41,7 @@ data class CourseCompletionCreateRequest(
     )
     val courseCreateInfo: CourseCreateInfo?,
 ) {
+    @Schema(hidden = true)
     val latLngPath: List<LatLng> = path.map(LatLngDto::toLatLng)
 }
 

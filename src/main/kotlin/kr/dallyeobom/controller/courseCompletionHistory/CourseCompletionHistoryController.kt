@@ -24,6 +24,7 @@ class CourseCompletionHistoryController(
     override fun createCourseCompletionHistory(
         @LoginUser
         user: User,
+        @RequestPart
         request: CourseCompletionCreateRequest,
         @RequestPart(required = false)
         courseImage: MultipartFile?,

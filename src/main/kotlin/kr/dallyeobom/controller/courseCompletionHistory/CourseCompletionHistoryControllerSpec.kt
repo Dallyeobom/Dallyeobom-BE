@@ -3,6 +3,8 @@ package kr.dallyeobom.controller.courseCompletionHistory
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.tags.Tag
+import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.entity.User
@@ -10,6 +12,7 @@ import kr.dallyeobom.util.validator.MaxFileSize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.multipart.MultipartFile
 
+@Tag(name = SwaggerTag.COURSE_COMPLETION_HISTORY)
 interface CourseCompletionHistoryControllerSpec {
     @Operation(
         summary = "코스 완주 기록 생성",
