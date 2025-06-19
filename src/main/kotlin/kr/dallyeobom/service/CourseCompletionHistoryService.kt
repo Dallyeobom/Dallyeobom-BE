@@ -68,6 +68,7 @@ class CourseCompletionHistoryService(
                     ),
                 )
             } else {
+                requireNull(request.courseCreateInfo) { "비공개 코스 완주 기록 시 코스 생성 정보는 불필요합니다." }
                 null
             }
 

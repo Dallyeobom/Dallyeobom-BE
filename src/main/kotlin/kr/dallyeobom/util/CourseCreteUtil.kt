@@ -91,8 +91,6 @@ class CourseCreteUtil(
                 points.map { Coordinate(it.lat, it.lng) }.toTypedArray(),
             ).also {
                 it.srid = WGS84_SRID
-            }.also {
-                it.srid = WGS84_SRID // SRID 설정
             }
 
     // 어차피 썸네일에선 경로를 자세하게 보여줄 필요가 없으므로 효율적인 표현을 위해
