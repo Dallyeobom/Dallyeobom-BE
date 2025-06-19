@@ -1,12 +1,16 @@
 package kr.dallyeobom.controller.courseCompletionHistory
 
+import jakarta.validation.constraints.Positive
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
+import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.service.CourseCompletionHistoryService
 import kr.dallyeobom.util.LoginUser
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
@@ -28,6 +32,12 @@ class CourseCompletionHistoryController(
         request: CourseCompletionCreateRequest,
         @RequestPart(required = false)
         courseImage: MultipartFile?,
-    ): CourseCompletionCreateResponse =
-        CourseCompletionCreateResponse.from(courseCompletionHistoryService.createCourseCompletionHistory(user, request, courseImage))
+    ): CourseCompletionCreateResponse = courseCompletionHistoryService.createCourseCompletionHistory(user, request, courseImage)
+
+    @GetMapping("/{id}")
+    override fun getCourseCompletionHistoryDetail(
+        @PathVariable
+        @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
+        id: Long,
+    ): CourseCompletionHistoryDetailResponse = courseCompletionHistoryService.getCourseCompletionHistoryDetail(id)
 }

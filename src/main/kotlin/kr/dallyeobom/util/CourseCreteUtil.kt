@@ -36,16 +36,6 @@ class CourseCreteUtil(
             latLngToLineString(
                 simplified,
             )
-        val startPoint =
-            GeometryFactory()
-                .createPoint(
-                    Coordinate(
-                        courseDto.path.first().lat,
-                        courseDto.path.first().lng,
-                    ),
-                ).also {
-                    it.srid = WGS84_SRID
-                }
 
         // 코스의 시작좌표를 기준으로 해당 코스의 지역을 결정함
         val reverseGeocodingResult = googleMapsClient.getLocation(courseDto.path.first())
@@ -89,7 +79,7 @@ class CourseCreteUtil(
                         ByteArrayInputStream(imageBytes),
                     ),
                 length = calculateTotalDistance(courseDto.path),
-                startPoint = startPoint,
+                startPoint = path.startPoint,
                 visibility = courseDto.visibility,
             ),
         )

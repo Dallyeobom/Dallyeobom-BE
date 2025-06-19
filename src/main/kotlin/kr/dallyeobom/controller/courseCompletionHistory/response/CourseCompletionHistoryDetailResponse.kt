@@ -1,0 +1,35 @@
+package kr.dallyeobom.controller.courseCompletionHistory.response
+
+import io.swagger.v3.oas.annotations.media.Schema
+import kr.dallyeobom.dto.LatLngDto
+import kr.dallyeobom.entity.CourseCompletionHistory
+
+class CourseCompletionHistoryDetailResponse(
+    @Schema(description = "코스 완료 이력 ID", example = "1")
+    val id: Long = 0L,
+    @Schema(description = "코스 ID", example = "1")
+    val courseId: Long?,
+    @Schema(description = "유저 ID", example = "1")
+    val userId: Long,
+    @Schema(description = "코스 리뷰", example = "이 코스는 정말 좋았습니다! 다음에도 또 달리고 싶어요.")
+    var review: String,
+    @Schema(description = "소요시간 (초 단위)", example = "3600")
+    val interval: Long,
+    @Schema(
+        description = "코스 경로",
+        example = "[{\"latitude\": 37.5665, \"longitude\": 126.978}, {\"latitude\": 37.567, \"longitude\": 126.979}]",
+    )
+    val path: List<LatLngDto>,
+) {
+    companion object {
+        fun from(courseCompletionHistory: CourseCompletionHistory): CourseCompletionHistoryDetailResponse =
+            CourseCompletionHistoryDetailResponse(
+                id = courseCompletionHistory.id,
+                courseId = courseCompletionHistory.course?.id,
+                userId = courseCompletionHistory.user.id,
+                review = courseCompletionHistory.review,
+                interval = courseCompletionHistory.interval.toSeconds(),
+                path = courseCompletionHistory.path.coordinates.map { LatLngDto(it.x, it.y) },
+            )
+    }
+}

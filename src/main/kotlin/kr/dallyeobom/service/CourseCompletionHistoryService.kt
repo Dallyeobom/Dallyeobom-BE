@@ -1,11 +1,14 @@
 package kr.dallyeobom.service
 
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
+import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
 import kr.dallyeobom.entity.User
+import kr.dallyeobom.exception.CourseCompletionHistoryNotFoundException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
@@ -32,7 +35,7 @@ class CourseCompletionHistoryService(
         user: User,
         request: CourseCompletionCreateRequest,
         courseImage: MultipartFile?,
-    ): CourseCompletionHistory {
+    ): CourseCompletionCreateResponse {
         val course =
             if (request.courseId != null) {
                 requireNull(request.courseVisibility) { "코스 공개 설정 정보가 존재합니다" }
@@ -68,14 +71,23 @@ class CourseCompletionHistoryService(
                 null
             }
 
-        return courseCompletionHistoryRepository.save(
-            CourseCompletionHistory(
-                user = user,
-                course = course,
-                review = request.review,
-                interval = Duration.ofSeconds(request.interval),
-                path = courseCreteUtil.latLngToLineString(request.latLngPath),
+        return CourseCompletionCreateResponse.from(
+            courseCompletionHistoryRepository.save(
+                CourseCompletionHistory(
+                    user = user,
+                    course = course,
+                    review = request.review,
+                    interval = Duration.ofSeconds(request.interval),
+                    path = courseCreteUtil.latLngToLineString(request.latLngPath),
+                ),
             ),
         )
+    }
+
+    fun getCourseCompletionHistoryDetail(id: Long): CourseCompletionHistoryDetailResponse {
+        val courseCompletionHistory =
+            courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
+
+        return CourseCompletionHistoryDetailResponse.from(courseCompletionHistory)
     }
 }

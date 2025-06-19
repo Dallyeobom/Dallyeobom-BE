@@ -2,11 +2,14 @@ package kr.dallyeobom.controller.courseCompletionHistory
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.Positive
 import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
+import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springframework.validation.annotation.Validated
@@ -46,4 +49,19 @@ interface CourseCompletionHistoryControllerSpec {
         @MaxFileSize
         courseImage: MultipartFile?,
     ): CourseCompletionCreateResponse
+
+    @Operation(
+        summary = "코스 완주기록 상세 조회",
+        description = "코스 완주기록 ID를 입력받아 해당 기록의 상세 정보를 조회합니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "코스 완주 기록 상세 정보"),
+            ApiResponse(responseCode = "400", description = "잘못된 요청 - 완주 기록 ID가 양수가 아님", content = arrayOf(Content())),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 기록 존재하지 않음", content = arrayOf(Content())),
+        ],
+    )
+    fun getCourseCompletionHistoryDetail(
+        @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
+        @Schema(description = "상세조회 하고자 하는 완주 기록의 ID", example = "1")
+        id: Long,
+    ): CourseCompletionHistoryDetailResponse
 }

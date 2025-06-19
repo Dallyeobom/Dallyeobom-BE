@@ -1,5 +1,6 @@
 package kr.dallyeobom.controller.course
 
+import jakarta.validation.constraints.Positive
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
@@ -30,6 +31,8 @@ class CourseController(
 
     @GetMapping("/{id}")
     override fun getCourseDetail(
-        @PathVariable id: Long,
+        @PathVariable
+        @Positive(message = "코스 ID는 양수여야 합니다.")
+        id: Long,
     ): CourseDetailResponse = courseService.getCourseDetail(id)
 }
