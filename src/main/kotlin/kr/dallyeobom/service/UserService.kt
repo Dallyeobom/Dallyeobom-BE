@@ -7,6 +7,7 @@ import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
+import kr.dallyeobom.entity.Provder
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.entity.UserOauthInfo
 import kr.dallyeobom.exception.AlreadyExistNicknameException
@@ -68,30 +69,26 @@ class UserService(
     fun kakaoLogin(request: KakaoLoginRequest): KakaoLoginResponse {
         val kakaoProfile = kakaoApiClient.getKakaoProfile(request.providerAccessToken)
         val providerUserId = requireNotNull(kakaoProfile?.id) { "해당 계정 정보가 존재하지 않습니다." }
-        val userOauthInfo = userOauthInfoRepository.findByProviderUserId(providerUserId)
+        val userOauthInfo = userOauthInfoRepository.findByProviderUserIdAndProvider(providerUserId, Provder.KAKAO)
 
-        return when {
-            userOauthInfo != null -> {
-                val tokens = makeTokens(userOauthInfo.user)
-                KakaoLoginResponse(tokens.accessToken, tokens.refreshToken, isNewUser = false)
-            }
-
-            else -> KakaoLoginResponse(isNewUser = true)
-        }
+        return userOauthInfo?.let {
+            val tokens = makeTokens(it.user)
+            KakaoLoginResponse(tokens.accessToken, tokens.refreshToken, isNewUser = false)
+        } ?: KakaoLoginResponse(isNewUser = true)
     }
 
     @Transactional
     fun createUser(request: KakaoUserCreateRequest): ServiceTokensResponse {
-        userRepository.findByNickname(request.nickName)?.let {
+        if (userRepository.existsByNickname(request.nickName)) {
             throw AlreadyExistNicknameException()
         }
         val kakaoProfile = kakaoApiClient.getKakaoProfile(request.providerAccessToken)
         val email = requireNotNull(kakaoProfile?.kakaoAccount?.email) { "이메일이 존재하지 않습니다." }
         val providerUserId = requireNotNull(kakaoProfile?.id) { "해당 계정 정보가 존재하지 않습니다." }
 
-        userOauthInfoRepository
-            .findByProviderUserId(providerUserId)
-            ?.let { throw AlreadyExistedProviderUserIdException() }
+        if (userOauthInfoRepository.existsByProviderUserIdAndProvider(providerUserId, Provder.KAKAO)) {
+            throw AlreadyExistedProviderUserIdException()
+        }
 
         val user =
             userRepository.save(

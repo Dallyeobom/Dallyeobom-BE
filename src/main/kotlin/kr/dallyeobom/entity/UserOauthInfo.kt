@@ -17,10 +17,10 @@ class UserOauthInfo(
     @ManyToOne
     @JoinColumn(nullable = false, updatable = false)
     val user: User,
-    @Column(nullable = false, length = 20)
+    @Column(nullable = false, updatable = false, length = 20)
     @Enumerated(EnumType.STRING)
     val provider: Provder,
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, updatable = false, length = 100)
     val providerUserId: String,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

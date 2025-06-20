@@ -19,7 +19,7 @@ class AuthController(
 ) : AuthControllerSpec {
     @PostMapping("/login/kakao")
     override fun kakaoLogin(
-        @RequestBody kakaoLoginRequest: KakaoLoginRequest,
+        @RequestBody @Valid kakaoLoginRequest: KakaoLoginRequest,
     ): KakaoLoginResponse = userService.kakaoLogin(kakaoLoginRequest)
 
     @PostMapping("/user/kakao")
