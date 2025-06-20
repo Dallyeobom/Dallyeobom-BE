@@ -44,4 +44,5 @@ val PERMITTED_URL_PATTERNS =
         "/api-docs/**",
         "/api/v1/auth/temporal/**",
         "/api/v1/auth/login/kakao/**",
+        "/api/v1/auth/user/kakao",
     )

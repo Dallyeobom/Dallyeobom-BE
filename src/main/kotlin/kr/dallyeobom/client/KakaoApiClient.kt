@@ -53,7 +53,7 @@ class KakaoApiClient(
             ).retrieve()
             .body(KakaoTokenResponse::class.java)
 
-    fun getKakaoProfile(accessToken: String): KakaoProfileResponse? =
+    fun getKakaoProfile(accessToken: String) =
         kakaoUserInfoRestClient
             .get()
             .header(HttpHeaders.AUTHORIZATION, "Bearer $accessToken")
@@ -71,17 +71,17 @@ data class KakaoTokenResponse(
 )
 
 data class KakaoProfileResponse(
-    val id: Long,
+    val id: String,
     val kakaoAccount: KakaoAccount,
 )
 
 data class KakaoAccount(
-    val email: String?,
-    val profile: KakaoProfile?,
+    val email: String,
+    val profile: KakaoProfile,
 )
 
 data class KakaoProfile(
-    val nickname: String?,
-    val profileImageUrl: String?,
-    val thumbnailImageUrl: String?,
+    val nickname: String,
+    val profileImageUrl: String,
+    val thumbnailImageUrl: String,
 )

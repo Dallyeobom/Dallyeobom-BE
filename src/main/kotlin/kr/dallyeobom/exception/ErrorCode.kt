@@ -22,6 +22,7 @@ enum class ErrorCode(
 
     // 리소스 충돌은 40900부터 시작
     ALREADY_EXIST_NICKNAME(HttpStatus.CONFLICT, 40900, "이미 사용중인 닉네임입니다."),
+    ALREADY_EXIST_PROVIDER_USER_ID(HttpStatus.CONFLICT, 40901, "이미 존재하는 유저입니다."),
 
     // 요청크기에 대한 에러는 41300부터 시작
     PAYLOAD_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, 41300, "파일 크기가 너무 큽니다."),

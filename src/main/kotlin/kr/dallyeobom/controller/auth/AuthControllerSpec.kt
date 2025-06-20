@@ -7,8 +7,11 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dallyeobom.config.swagger.SwaggerTag
+import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
+import kr.dallyeobom.controller.auth.request.UserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
-import org.springframework.web.bind.annotation.RequestParam
+import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
+import org.springframework.web.bind.annotation.RequestBody
 
 @Tag(name = SwaggerTag.AUTH)
 interface AuthControllerSpec {
@@ -42,6 +45,10 @@ interface AuthControllerSpec {
         ],
     )
     fun kakaoLogin(
-        @RequestParam("code") code: String,
+        @RequestBody kakaoLoginRequest: KakaoLoginRequest,
     ): KakaoLoginResponse
+
+    fun createKakaoUser(
+        @RequestBody userCreateRequest: UserCreateRequest,
+    ): ServiceTokensResponse
 }
