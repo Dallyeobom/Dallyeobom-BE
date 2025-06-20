@@ -1,5 +1,6 @@
 package kr.dallyeobom.controller.auth
 
+import jakarta.validation.Valid
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
@@ -23,7 +24,7 @@ class AuthController(
 
     @PostMapping("/user/kakao")
     override fun createKakaoUser(
-        @RequestBody kakaoUserCreateRequest: KakaoUserCreateRequest,
+        @RequestBody @Valid kakaoUserCreateRequest: KakaoUserCreateRequest,
     ) = userService.createUser(kakaoUserCreateRequest)
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
