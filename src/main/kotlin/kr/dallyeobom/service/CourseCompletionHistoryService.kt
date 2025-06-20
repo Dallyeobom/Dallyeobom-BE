@@ -13,7 +13,7 @@ import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
-import kr.dallyeobom.util.CourseCreteUtil
+import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.requireNull
 import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Service
@@ -27,7 +27,7 @@ import kotlin.jvm.optionals.getOrNull
 class CourseCompletionHistoryService(
     private val courseRepository: CourseRepository,
     private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
-    private val courseCreteUtil: CourseCreteUtil,
+    private val courseCreateUtil: CourseCreateUtil,
     private val objectStorageRepository: ObjectStorageRepository,
 ) {
     @Transactional
@@ -44,7 +44,7 @@ class CourseCompletionHistoryService(
             } else if (request.courseVisibility != CourseVisibility.PRIVATE) {
                 requireNotNull(request.courseCreateInfo) { "코스 생성 정보가 필요합니다." }
                 requireNotNull(request.courseVisibility) { "코스 공개 설정 정보가 필요합니다." }
-                courseCreteUtil.saveCourse(
+                courseCreateUtil.saveCourse(
                     CourseCreateDto(
                         request.courseCreateInfo.name,
                         request.courseCreateInfo.description,
@@ -79,7 +79,7 @@ class CourseCompletionHistoryService(
                     course = course,
                     review = request.review,
                     interval = Duration.ofSeconds(request.interval),
-                    path = courseCreteUtil.latLngToLineString(request.latLngPath),
+                    path = courseCreateUtil.latLngToLineString(request.latLngPath),
                 ),
             ),
         )

@@ -21,7 +21,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 @Component
-class CourseCreteUtil(
+class CourseCreateUtil(
     private val courseRepository: CourseRepository,
     private val objectStorageRepository: ObjectStorageRepository,
     private val googleMapsClient: GoogleMapsClient,

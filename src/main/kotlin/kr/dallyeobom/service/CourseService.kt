@@ -16,7 +16,7 @@ import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
-import kr.dallyeobom.util.CourseCreteUtil
+import kr.dallyeobom.util.CourseCreateUtil
 import org.springframework.stereotype.Service
 import java.util.Locale
 import kotlin.jvm.optionals.getOrNull
@@ -26,7 +26,7 @@ class CourseService(
     private val courseRepository: CourseRepository,
     private val objectStorageRepository: ObjectStorageRepository,
     private val tourApiClient: TourApiClient,
-    private val courseCreteUtil: CourseCreteUtil,
+    private val courseCreateUtil: CourseCreateUtil,
 ) {
     // 관광데이터 API를 통해 경로를 가져오고, DB를 채워넣는 메소드
     // 해당 메소드는 멱등성보장이 되지 않는다. 따라서 여러번 호출하면 중복된 코스가 생성된다.
@@ -61,7 +61,7 @@ class CourseService(
                         null
                     }
                 }
-            courseCreteUtil.saveCourse(
+            courseCreateUtil.saveCourse(
                 CourseCreateDto(
                     course.crsKorNm,
                     course.crsContents,
