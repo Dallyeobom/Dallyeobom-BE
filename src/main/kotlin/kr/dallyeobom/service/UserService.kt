@@ -2,7 +2,7 @@ package kr.dallyeobom.service
 
 import kr.dallyeobom.client.KakaoApiClient
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
-import kr.dallyeobom.controller.auth.request.UserCreateRequest
+import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
@@ -81,11 +81,11 @@ class UserService(
     }
 
     @Transactional
-    fun createUser(request: UserCreateRequest): ServiceTokensResponse {
+    fun createUser(request: KakaoUserCreateRequest): ServiceTokensResponse {
         userRepository.findByNickname(request.nickName)?.let {
             throw AlreadyExistNicknameException()
         }
-        val kakaoProfile = kakaoApiClient.getKakaoProfile(request.accessToken)
+        val kakaoProfile = kakaoApiClient.getKakaoProfile(request.providerAccessToken)
         val email = requireNotNull(kakaoProfile?.kakaoAccount?.email) { "이메일이 존재하지 않습니다." }
         val providerUserId = requireNotNull(kakaoProfile?.id) { "해당 계정 정보가 존재하지 않습니다." }
 

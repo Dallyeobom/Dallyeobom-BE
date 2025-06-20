@@ -1,6 +1,6 @@
 package kr.dallyeobom.controller.auth.request
 
-data class UserCreateRequest(
+data class KakaoUserCreateRequest(
     val nickName: String,
-    val accessToken: String,
+    val providerAccessToken: String,
 )
