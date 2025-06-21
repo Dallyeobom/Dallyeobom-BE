@@ -42,6 +42,9 @@ class Course(
     val startPoint: Point,
     @Column(columnDefinition = "SDO_GEOMETRY", nullable = false, updatable = false)
     val path: LineString,
+    @Column(nullable = false, length = 10)
+    @Enumerated(EnumType.STRING)
+    var visibility: CourseVisibility,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
@@ -57,4 +60,10 @@ enum class CourseLevel {
 enum class CourseCreatorType {
     USER,
     SYSTEM,
+}
+
+enum class CourseVisibility {
+    PUBLIC,
+    PRIVATE,
+    // CREW, // 나중에 크루 기능같은게 추가되면 크루에게만 공개 같은 기능을 추가할 수 있음
 }

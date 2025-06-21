@@ -1,6 +1,7 @@
 package kr.dallyeobom.controller.course.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.dallyeobom.dto.LatLngDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseLevel
 
@@ -21,7 +22,7 @@ data class CourseDetailResponse(
     var overViewImageUrl: String,
     @Schema(description = "코스 길이 (미터 단위)", example = "15000")
     val length: Int,
-    val path: List<LatLng>,
+    val path: List<LatLngDto>,
 ) {
     companion object {
         fun from(
@@ -37,14 +38,7 @@ data class CourseDetailResponse(
             location = course.location,
             overViewImageUrl = overViewImageUrl,
             length = course.length,
-            path = course.path.coordinates.map { LatLng(it.x, it.y) },
+            path = course.path.coordinates.map { LatLngDto(it.x, it.y) },
         )
     }
-
-    data class LatLng(
-        @Schema(description = "위도", example = "37.5665")
-        val latitude: Double,
-        @Schema(description = "경도", example = "126.978")
-        val longitude: Double,
-    )
 }

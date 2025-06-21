@@ -4,6 +4,7 @@ import io.awspring.cloud.s3.S3Template
 import kr.dallyeobom.config.properties.ObjectStorageProperties
 import org.springframework.stereotype.Repository
 import java.io.InputStream
+import java.util.UUID
 
 @Repository
 class ObjectStorageRepository(
@@ -35,5 +36,7 @@ class ObjectStorageRepository(
     companion object {
         const val COURSE_OVERVIEW_IMAGE_PATH = "course/overview/"
         const val COURSE_IMAGE_PATH = "course/image/"
+
+        fun generateFileName(extension: String): String = "${UUID.randomUUID()}.$extension" // 중복나지 않도록 UUID 사용
     }
 }
