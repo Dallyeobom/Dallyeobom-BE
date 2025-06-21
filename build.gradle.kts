@@ -17,6 +17,10 @@ java {
     }
 }
 
+ktlint {
+    version.set("1.6.0")
+}
+
 jib {
     from {
         image = "eclipse-temurin:21-jre"
@@ -51,6 +55,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.hibernate.orm:hibernate-spatial:6.6.15.Final")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     // Secret & Config
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0"))

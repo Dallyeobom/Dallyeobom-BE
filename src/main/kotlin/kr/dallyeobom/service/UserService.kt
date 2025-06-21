@@ -1,12 +1,20 @@
 package kr.dallyeobom.service
 
+import kr.dallyeobom.client.KakaoApiClient
+import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
+import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
+import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
+import kr.dallyeobom.entity.Provder
 import kr.dallyeobom.entity.User
+import kr.dallyeobom.entity.UserOauthInfo
 import kr.dallyeobom.exception.AlreadyExistNicknameException
+import kr.dallyeobom.exception.AlreadyExistedProviderUserIdException
 import kr.dallyeobom.exception.InvalidRefreshTokenException
 import kr.dallyeobom.exception.UserNotFoundException
+import kr.dallyeobom.repository.UserOauthInfoRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.jwt.JwtUtil
 import org.springframework.stereotype.Service
@@ -15,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserService(
     private val userRepository: UserRepository,
+    private val kakaoApiClient: KakaoApiClient,
+    private val userOauthInfoRepository: UserOauthInfoRepository,
     private val jwtUtil: JwtUtil,
 ) {
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
@@ -26,7 +36,7 @@ class UserService(
         if (userRepository.existsByNickname(request.nickName)) {
             throw AlreadyExistNicknameException()
         }
-        userRepository.save(User(request.nickName))
+        userRepository.save(User(request.nickName, ""))
     }
 
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
@@ -54,4 +64,44 @@ class UserService(
         jwtUtil.storeCachedRefreshTokenRotateId(user.id, rotateId)
         return ServiceTokensResponse(accessToken, refreshToken)
     }
+
+    @Transactional(readOnly = true)
+    fun kakaoLogin(request: KakaoLoginRequest): KakaoLoginResponse {
+        val kakaoProfile = kakaoApiClient.getKakaoProfile(request.providerAccessToken)
+        val providerUserId = requireNotNull(kakaoProfile?.id) { "해당 계정 정보가 존재하지 않습니다." }
+        val userOauthInfo = userOauthInfoRepository.findByProviderUserIdAndProvider(providerUserId, Provder.KAKAO)
+
+        return userOauthInfo?.let {
+            val tokens = makeTokens(it.user)
+            KakaoLoginResponse(tokens.accessToken, tokens.refreshToken, isNewUser = false)
+        } ?: KakaoLoginResponse(isNewUser = true)
+    }
+
+    @Transactional
+    fun createUser(request: KakaoUserCreateRequest): ServiceTokensResponse {
+        if (userRepository.existsByNickname(request.nickName)) {
+            throw AlreadyExistNicknameException()
+        }
+        val kakaoProfile = kakaoApiClient.getKakaoProfile(request.providerAccessToken)
+        val email = requireNotNull(kakaoProfile?.kakaoAccount?.email) { "이메일이 존재하지 않습니다." }
+        val providerUserId = requireNotNull(kakaoProfile?.id) { "해당 계정 정보가 존재하지 않습니다." }
+
+        if (userOauthInfoRepository.existsByProviderUserIdAndProvider(providerUserId, Provder.KAKAO)) {
+            throw AlreadyExistedProviderUserIdException()
+        }
+
+        val user =
+            userRepository.save(
+                User(
+                    nickname = request.nickName,
+                    email = email,
+                ),
+            )
+        userOauthInfoRepository.save(UserOauthInfo.createKakaoOauthInfo(user, providerUserId))
+        return makeTokens(user)
+    }
+
+    @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
+    @Transactional(readOnly = true)
+    fun getProviderAccessToken(code: String) = kakaoApiClient.getToken(code)?.accessToken
 }
