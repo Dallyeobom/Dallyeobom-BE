@@ -48,6 +48,8 @@ spec:
                 -XX:InitialRAMPercentage=50
                 -XX:MaxRAMPercentage=50
                 -XX:MinRAMPercentage=50
+            - name: KAKAO_REDIRECT_URI
+              value: jayden-bin.cc/api/v1/auth/login/kakao
           readinessProbe:
             httpGet:
               port: 8080

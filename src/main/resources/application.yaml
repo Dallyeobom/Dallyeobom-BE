@@ -4,6 +4,7 @@ spring:
   profiles:
     include:
       - database
+      - oauth
   servlet:
     multipart:
       max-file-size: 10MB
@@ -14,6 +15,7 @@ spring:
   threads:
     virtual:
       enabled: true
+
 server:
   forward-headers-strategy: framework
   error:
