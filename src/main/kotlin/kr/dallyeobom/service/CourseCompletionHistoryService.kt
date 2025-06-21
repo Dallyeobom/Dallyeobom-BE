@@ -4,6 +4,7 @@ import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletion
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.dto.CourseCreateDto
+import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
@@ -36,55 +37,58 @@ class CourseCompletionHistoryService(
         userId: Long,
         request: CourseCompletionCreateRequest,
         courseImage: MultipartFile?,
-    ): CourseCompletionCreateResponse {
-        val course =
-            if (request.courseId != null) {
-                requireNull(request.courseVisibility) { "코스 공개 설정 정보가 존재합니다" }
-                requireNull(request.courseCreateInfo) { "코스 생성 정보가 존재합니다" }
-                courseRepository.findById(request.courseId).getOrNull() ?: throw CourseNotFoundException()
-            } else if (request.courseVisibility != CourseVisibility.PRIVATE) {
-                requireNotNull(request.courseCreateInfo) { "코스 생성 정보가 필요합니다." }
-                requireNotNull(request.courseVisibility) { "코스 공개 설정 정보가 필요합니다." }
-                courseCreateUtil.saveCourse(
-                    CourseCreateDto(
-                        request.courseCreateInfo.name,
-                        request.courseCreateInfo.description,
-                        request.courseCreateInfo.courseLevel,
-                        courseImage?.let {
-                            requireNotNull(courseImage.originalFilename) { "코스 이미지의 원본 파일명이 필요합니다." }
-                            objectStorageRepository.upload(
-                                ObjectStorageRepository.COURSE_IMAGE_PATH,
-                                ObjectStorageRepository.generateFileName(
-                                    FilenameUtils
-                                        .getExtension(courseImage.originalFilename)
-                                        .lowercase(Locale.getDefault()),
-                                ),
-                                courseImage.inputStream,
-                            )
-                        },
-                        CourseCreatorType.USER,
-                        creatorId = userId,
-                        request.latLngPath,
-                        visibility = request.courseVisibility,
-                    ),
-                )
-            } else {
-                requireNull(request.courseCreateInfo) { "비공개 코스 완주 기록 시 코스 생성 정보는 불필요합니다." }
-                null
-            }
-
-        return CourseCompletionCreateResponse.from(
+    ): CourseCompletionCreateResponse =
+        CourseCompletionCreateResponse.from(
             courseCompletionHistoryRepository.save(
                 CourseCompletionHistory(
                     user = userRepository.findById(userId).get(), // 없을수가 없는 정보라 get() 사용
-                    course = course,
+                    course = getOrCreateCourseIfNeeded(userId, request, courseImage),
                     review = request.review,
                     interval = Duration.ofSeconds(request.interval),
                     path = courseCreateUtil.latLngToLineString(request.latLngPath),
                 ),
             ),
         )
-    }
+
+    private fun getOrCreateCourseIfNeeded(
+        userId: Long,
+        request: CourseCompletionCreateRequest,
+        courseImage: MultipartFile?,
+    ): Course? =
+        if (request.courseId != null) {
+            requireNull(request.courseVisibility) { "코스 공개 설정 정보가 존재합니다" }
+            requireNull(request.courseCreateInfo) { "코스 생성 정보가 존재합니다" }
+            courseRepository.findById(request.courseId).getOrNull() ?: throw CourseNotFoundException()
+        } else if (request.courseVisibility != CourseVisibility.PRIVATE) {
+            requireNotNull(request.courseCreateInfo) { "코스 생성 정보가 필요합니다." }
+            requireNotNull(request.courseVisibility) { "코스 공개 설정 정보가 필요합니다." }
+            courseCreateUtil.saveCourse(
+                CourseCreateDto(
+                    request.courseCreateInfo.name,
+                    request.courseCreateInfo.description,
+                    request.courseCreateInfo.courseLevel,
+                    courseImage?.let {
+                        requireNotNull(courseImage.originalFilename) { "코스 이미지의 원본 파일명이 필요합니다." }
+                        objectStorageRepository.upload(
+                            ObjectStorageRepository.COURSE_IMAGE_PATH,
+                            ObjectStorageRepository.generateFileName(
+                                FilenameUtils
+                                    .getExtension(courseImage.originalFilename)
+                                    .lowercase(Locale.getDefault()),
+                            ),
+                            courseImage.inputStream,
+                        )
+                    },
+                    CourseCreatorType.USER,
+                    creatorId = userId,
+                    request.latLngPath,
+                    visibility = request.courseVisibility,
+                ),
+            )
+        } else {
+            requireNull(request.courseCreateInfo) { "비공개 코스 완주 기록 시 코스 생성 정보는 불필요합니다." }
+            null
+        }
 
     fun getCourseCompletionHistoryDetail(id: Long): CourseCompletionHistoryDetailResponse {
         val courseCompletionHistory =
