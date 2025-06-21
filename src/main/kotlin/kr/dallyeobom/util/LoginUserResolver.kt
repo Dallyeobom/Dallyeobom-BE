@@ -1,6 +1,5 @@
 package kr.dallyeobom.util
 
-import kr.dallyeobom.entity.User
 import kr.dallyeobom.exception.BaseException
 import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.service.SecurityUser
@@ -15,17 +14,17 @@ import org.springframework.web.method.support.ModelAndViewContainer
 @Component
 class LoginUserResolver : HandlerMethodArgumentResolver {
     override fun supportsParameter(parameter: MethodParameter): Boolean =
-        parameter.hasParameterAnnotation(LoginUser::class.java) && parameter.parameterType == User::class.java
+        parameter.hasParameterAnnotation(LoginUserId::class.java) && parameter.parameterType == Long::class.java
 
     override fun resolveArgument(
         parameter: MethodParameter,
         mavContainer: ModelAndViewContainer?,
         webRequest: NativeWebRequest,
         binderFactory: WebDataBinderFactory?,
-    ): User {
+    ): Long {
         val authentication = SecurityContextHolder.getContext().authentication?.principal
         // 로그인이 안됐다면 필터에서 짤렸을거라 null일 수  없긴 할텐데 혹시나 몰라 일단 null 체크를 해줌
-        return (authentication as? SecurityUser)?.user ?: throw BaseException(
+        return (authentication as? SecurityUser)?.user?.id ?: throw BaseException(
             ErrorCode.UNAUTHORIZED,
             ErrorCode.UNAUTHORIZED.errorMessage,
         )

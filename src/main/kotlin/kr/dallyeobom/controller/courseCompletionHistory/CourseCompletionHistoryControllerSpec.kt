@@ -10,7 +10,6 @@ import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
-import kr.dallyeobom.entity.User
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.multipart.MultipartFile
@@ -44,7 +43,7 @@ interface CourseCompletionHistoryControllerSpec {
         ],
     )
     fun createCourseCompletionHistory(
-        user: User,
+        userId: Long,
         @Validated request: CourseCompletionCreateRequest,
         @MaxFileSize
         courseImage: MultipartFile?,

@@ -6,7 +6,7 @@ import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
-import kr.dallyeobom.util.LoginUser
+import kr.dallyeobom.util.LoginUserId
 import org.springdoc.core.utils.SpringDocUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -15,7 +15,7 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 @Configuration
 class ApiDocsConfig {
     init {
-        SpringDocUtils.getConfig().addAnnotationsToIgnore(LoginUser::class.java)
+        SpringDocUtils.getConfig().addAnnotationsToIgnore(LoginUserId::class.java)
     }
 
     @Bean

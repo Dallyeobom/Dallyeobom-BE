@@ -4,9 +4,8 @@ import jakarta.validation.constraints.Positive
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
-import kr.dallyeobom.entity.User
 import kr.dallyeobom.service.CourseCompletionHistoryService
-import kr.dallyeobom.util.LoginUser
+import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,8 +25,8 @@ class CourseCompletionHistoryController(
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = [MULTIPART_FORM_DATA_VALUE])
     override fun createCourseCompletionHistory(
-        @LoginUser
-        user: User,
+        @LoginUserId
+        userId: Long,
         @RequestPart
         request: CourseCompletionCreateRequest,
         @RequestPart(required = false)

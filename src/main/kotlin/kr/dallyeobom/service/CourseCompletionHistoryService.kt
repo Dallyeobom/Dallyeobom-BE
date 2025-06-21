@@ -7,12 +7,12 @@ import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
-import kr.dallyeobom.entity.User
 import kr.dallyeobom.exception.CourseCompletionHistoryNotFoundException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
+import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.requireNull
 import org.apache.commons.io.FilenameUtils
@@ -29,10 +29,11 @@ class CourseCompletionHistoryService(
     private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
     private val courseCreateUtil: CourseCreateUtil,
     private val objectStorageRepository: ObjectStorageRepository,
+    private val userRepository: UserRepository,
 ) {
     @Transactional
     fun createCourseCompletionHistory(
-        user: User,
+        userId: Long,
         request: CourseCompletionCreateRequest,
         courseImage: MultipartFile?,
     ): CourseCompletionCreateResponse {
@@ -62,7 +63,7 @@ class CourseCompletionHistoryService(
                             )
                         },
                         CourseCreatorType.USER,
-                        creatorId = user.id,
+                        creatorId = userId,
                         request.latLngPath,
                         visibility = request.courseVisibility,
                     ),
@@ -75,7 +76,7 @@ class CourseCompletionHistoryService(
         return CourseCompletionCreateResponse.from(
             courseCompletionHistoryRepository.save(
                 CourseCompletionHistory(
-                    user = user,
+                    user = userRepository.findById(userId).get(), // 없을수가 없는 정보라 get() 사용
                     course = course,
                     review = request.review,
                     interval = Duration.ofSeconds(request.interval),
