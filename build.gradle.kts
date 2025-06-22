@@ -82,6 +82,7 @@ dependencies {
 
     // Utilities
     implementation("io.jenetics:jpx:3.2.1")
+    implementation("commons-io:commons-io:2.19.0")
 
     // Map
     implementation("com.google.maps:google-maps-services:2.2.0")
