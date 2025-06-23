@@ -10,11 +10,45 @@ import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
+import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 
 @Tag(name = SwaggerTag.AUTH)
 interface AuthControllerSpec {
+    @Operation(
+        summary = "닉네임 중복 체크 API",
+        description = "닉네임 중복 체크를 진행합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "중복 체크 성공",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = NicknameCheckResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "사용 가능 닉네임",
+                                description = "중복 되지 않은 닉네임일 경우",
+                                value = """{"isDuplicated": false}""",
+                            ),
+                            ExampleObject(
+                                name = "중복된 닉네임",
+                                description = "중복된 닉네임일 경우",
+                                value = """{"isDuplicated": true}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun checkNickname(
+        @RequestParam("nickname") nickname: String,
+    ): NicknameCheckResponse
+
     @Operation(
         summary = "카카오 로그인 API",
         description = "카카오 로그인을 합니다.",

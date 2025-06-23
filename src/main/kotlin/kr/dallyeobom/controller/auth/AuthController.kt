@@ -4,6 +4,7 @@ import jakarta.validation.Valid
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
+import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.service.UserService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -17,6 +18,11 @@ import org.springframework.web.bind.annotation.RestController
 class AuthController(
     private val userService: UserService,
 ) : AuthControllerSpec {
+    @GetMapping("/check-nickname")
+    override fun checkNickname(
+        @RequestParam("nickname") nickname: String,
+    ): NicknameCheckResponse = userService.checkDuplicatedNickName(nickname)
+
     @PostMapping("/login/kakao")
     override fun kakaoLogin(
         @RequestBody @Valid kakaoLoginRequest: KakaoLoginRequest,
