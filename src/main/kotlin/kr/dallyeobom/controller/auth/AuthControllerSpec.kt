@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.validation.Valid
 import jakarta.validation.constraints.Size
 import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
@@ -14,6 +13,7 @@ import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
@@ -48,7 +48,7 @@ interface AuthControllerSpec {
         ],
     )
     fun checkNickname(
-        @RequestParam("nickname") @Valid @Size(min = 2, max = 15) nickname: String,
+        @RequestParam("nickname") @Validated @Size(min = 2, max = 15) nickname: String,
     ): NicknameCheckResponse
 
     @Operation(
@@ -81,7 +81,7 @@ interface AuthControllerSpec {
         ],
     )
     fun kakaoLogin(
-        @RequestBody @Valid kakaoLoginRequest: KakaoLoginRequest,
+        @RequestBody @Validated kakaoLoginRequest: KakaoLoginRequest,
     ): KakaoLoginResponse
 
     @Operation(
@@ -123,6 +123,6 @@ interface AuthControllerSpec {
         ],
     )
     fun createKakaoUser(
-        @RequestBody @Valid kakaoUserCreateRequest: KakaoUserCreateRequest,
+        @RequestBody @Validated kakaoUserCreateRequest: KakaoUserCreateRequest,
     ): ServiceTokensResponse
 }
