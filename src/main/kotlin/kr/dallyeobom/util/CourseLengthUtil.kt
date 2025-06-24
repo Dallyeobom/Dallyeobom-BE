@@ -13,11 +13,10 @@ object CourseLengthUtil {
     fun calculateTotalDistance(points: List<LatLng>): Int {
         if (points.size < 2) return 0
 
-        var total = 0.0
-        for (i in 0 until points.lastIndex) {
-            total += haversine(points[i], points[i + 1])
-        }
-        return total.toInt() // 단위: 미터 (m)
+        return points
+            .zipWithNext()
+            .sumOf { (p1, p2) -> haversine(p1, p2) }
+            .toInt() // 단위: 미터 (m)
     }
 
     private fun haversine(

@@ -38,6 +38,7 @@ class UserRankService(
             try {
                 setRankData(DAILY_RANKING_KEY, LocalDate.now().minusDays(1))
                 setRankData(WEEKLY_RANKING_KEY, LocalDate.now().minusWeeks(1))
+                // minusMonths(1) 는 28일,30일,31일 이중에 어떤 수치를 가질지 달마다 달라짐 그래서 고정된 30으로 사용
                 setRankData(MONTHLY_RANKING_KEY, LocalDate.now().minusDays(30))
             } finally {
                 lock.unlock()

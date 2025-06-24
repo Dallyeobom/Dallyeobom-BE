@@ -18,6 +18,7 @@ class RedissonClientConfig {
             .useSingleServer()
             .setAddress("redis://${redissonConfig.host}:${redissonConfig.port}")
             .setPassword(redissonConfig.password)
+            .setDatabase(redissonConfig.database)
         return Redisson.create(config)
     }
 }
