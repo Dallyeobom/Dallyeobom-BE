@@ -4,6 +4,7 @@ import kr.dallyeobom.client.KakaoApiClient
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
+import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
@@ -100,6 +101,9 @@ class UserService(
         userOauthInfoRepository.save(UserOauthInfo.createKakaoOauthInfo(user, providerUserId))
         return makeTokens(user)
     }
+
+    @Transactional(readOnly = true)
+    fun checkDuplicatedNickName(nickname: String): NicknameCheckResponse = NicknameCheckResponse(userRepository.existsByNickname(nickname))
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
     @Transactional(readOnly = true)

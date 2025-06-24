@@ -6,15 +6,51 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.Size
 import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
+import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
+import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 
 @Tag(name = SwaggerTag.AUTH)
 interface AuthControllerSpec {
+    @Operation(
+        summary = "닉네임 중복 체크 API",
+        description = "닉네임 중복 체크를 진행합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "중복 체크 성공",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = NicknameCheckResponse::class),
+                        examples = [
+                            ExampleObject(
+                                name = "사용 가능 닉네임",
+                                description = "중복 되지 않은 닉네임일 경우",
+                                value = """{"isDuplicated": false}""",
+                            ),
+                            ExampleObject(
+                                name = "중복된 닉네임",
+                                description = "중복된 닉네임일 경우",
+                                value = """{"isDuplicated": true}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun checkNickname(
+        @RequestParam @Validated @Size(min = 2, max = 15) nickname: String,
+    ): NicknameCheckResponse
+
     @Operation(
         summary = "카카오 로그인 API",
         description = "카카오 로그인을 합니다.",
@@ -45,7 +81,7 @@ interface AuthControllerSpec {
         ],
     )
     fun kakaoLogin(
-        @RequestBody kakaoLoginRequest: KakaoLoginRequest,
+        @RequestBody @Validated kakaoLoginRequest: KakaoLoginRequest,
     ): KakaoLoginResponse
 
     @Operation(
@@ -87,6 +123,6 @@ interface AuthControllerSpec {
         ],
     )
     fun createKakaoUser(
-        @RequestBody kakaoUserCreateRequest: KakaoUserCreateRequest,
+        @RequestBody @Validated kakaoUserCreateRequest: KakaoUserCreateRequest,
     ): ServiceTokensResponse
 }
