@@ -15,6 +15,7 @@ import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
+import kr.dallyeobom.util.CourseLengthUtil
 import kr.dallyeobom.util.requireNull
 import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Service
@@ -46,6 +47,7 @@ class CourseCompletionHistoryService(
                     review = request.review,
                     interval = Duration.ofSeconds(request.interval),
                     path = courseCreateUtil.latLngToLineString(request.latLngPath),
+                    length = CourseLengthUtil.calculateTotalDistance(request.latLngPath),
                 ),
             ),
         )

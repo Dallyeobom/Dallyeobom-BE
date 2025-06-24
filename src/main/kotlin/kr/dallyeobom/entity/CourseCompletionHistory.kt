@@ -32,6 +32,8 @@ class CourseCompletionHistory(
     val interval: Duration,
     @Column(columnDefinition = "SDO_GEOMETRY", nullable = false, updatable = false)
     val path: LineString,
+    @Column(nullable = false)
+    val length: Int,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
