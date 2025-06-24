@@ -20,7 +20,7 @@ class AuthController(
 ) : AuthControllerSpec {
     @GetMapping("/check-nickname")
     override fun checkNickname(
-        @RequestParam("nickname") nickname: String,
+        @RequestParam nickname: String,
     ): NicknameCheckResponse = userService.checkDuplicatedNickName(nickname)
 
     @PostMapping("/login/kakao")

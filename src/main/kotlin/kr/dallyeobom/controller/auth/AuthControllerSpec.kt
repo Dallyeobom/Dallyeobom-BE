@@ -48,7 +48,7 @@ interface AuthControllerSpec {
         ],
     )
     fun checkNickname(
-        @RequestParam("nickname") @Validated @Size(min = 2, max = 15) nickname: String,
+        @RequestParam @Validated @Size(min = 2, max = 15) nickname: String,
     ): NicknameCheckResponse
 
     @Operation(
