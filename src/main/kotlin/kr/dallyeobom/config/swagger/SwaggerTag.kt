@@ -6,5 +6,6 @@ object SwaggerTag {
     const val AUTH: String = "B. 인증 API"
     const val COURSE: String = "C. 코스 API"
     const val COURSE_COMPLETION_HISTORY: String = "D. 코스 완료 기록 API"
+    const val USER_RANK: String = "E. 사용자 랭킹 API"
     const val TEMPORAL_AUTH: String = "Y. 임시 인증 API"
 }
