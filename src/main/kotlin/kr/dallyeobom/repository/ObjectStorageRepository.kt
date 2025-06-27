@@ -36,6 +36,7 @@ class ObjectStorageRepository(
     companion object {
         const val COURSE_OVERVIEW_IMAGE_PATH = "course/overview/"
         const val COURSE_IMAGE_PATH = "course/image/"
+        const val COMPLETION_IMAGE_PATH = "course/completion/"
 
         fun generateFileName(extension: String): String = "${UUID.randomUUID()}.$extension" // 중복나지 않도록 UUID 사용
     }

@@ -31,7 +31,10 @@ class CourseCompletionHistoryController(
         request: CourseCompletionCreateRequest,
         @RequestPart(required = false)
         courseImage: MultipartFile?,
-    ): CourseCompletionCreateResponse = courseCompletionHistoryService.createCourseCompletionHistory(userId, request, courseImage)
+        @RequestPart
+        completionImages: List<MultipartFile>,
+    ): CourseCompletionCreateResponse =
+        courseCompletionHistoryService.createCourseCompletionHistory(userId, request, courseImage, completionImages)
 
     @GetMapping("/{id}")
     override fun getCourseCompletionHistoryDetail(

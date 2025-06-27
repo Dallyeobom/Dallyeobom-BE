@@ -6,11 +6,14 @@ import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletio
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
+import kr.dallyeobom.entity.CourseCompletionImage
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
 import kr.dallyeobom.exception.CourseCompletionHistoryNotFoundException
 import kr.dallyeobom.exception.CourseNotFoundException
+import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
+import kr.dallyeobom.repository.CourseCompletionImageRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.UserRepository
@@ -32,25 +35,41 @@ class CourseCompletionHistoryService(
     private val courseCreateUtil: CourseCreateUtil,
     private val objectStorageRepository: ObjectStorageRepository,
     private val userRepository: UserRepository,
+    private val courseCompletionImageRepository: CourseCompletionImageRepository,
 ) {
     @Transactional
     fun createCourseCompletionHistory(
         userId: Long,
         request: CourseCompletionCreateRequest,
         courseImage: MultipartFile?,
-    ): CourseCompletionCreateResponse =
-        CourseCompletionCreateResponse.from(
-            courseCompletionHistoryRepository.save(
-                CourseCompletionHistory(
-                    user = userRepository.findById(userId).get(), // 없을수가 없는 정보라 get() 사용
-                    course = getOrCreateCourseIfNeeded(userId, request, courseImage),
-                    review = request.review,
-                    interval = Duration.ofSeconds(request.interval),
-                    path = courseCreateUtil.latLngToLineString(request.latLngPath),
-                    length = CourseLengthUtil.calculateTotalDistance(request.latLngPath),
-                ),
-            ),
+        completionImages: List<MultipartFile>,
+    ): CourseCompletionCreateResponse {
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val courseCompletionHistory =
+            courseCompletionHistoryRepository
+                .save(
+                    CourseCompletionHistory(
+                        user = user,
+                        course = getOrCreateCourseIfNeeded(userId, request, courseImage),
+                        review = request.review,
+                        interval = Duration.ofSeconds(request.interval),
+                        path = courseCreateUtil.latLngToLineString(request.latLngPath),
+                        length = CourseLengthUtil.calculateTotalDistance(request.latLngPath),
+                    ),
+                )
+
+        courseCompletionImageRepository.saveAll(
+            completionImages.map { courseCompletionImage ->
+                CourseCompletionImage(
+                    user = user,
+                    completion = courseCompletionHistory,
+                    image = saveImage(ObjectStorageRepository.COMPLETION_IMAGE_PATH, courseCompletionImage),
+                )
+            },
         )
+
+        return CourseCompletionCreateResponse.from(courseCompletionHistory)
+    }
 
     private fun getOrCreateCourseIfNeeded(
         userId: Long,
@@ -70,16 +89,7 @@ class CourseCompletionHistoryService(
                     request.courseCreateInfo.description,
                     request.courseCreateInfo.courseLevel,
                     courseImage?.let {
-                        requireNotNull(courseImage.originalFilename) { "코스 이미지의 원본 파일명이 필요합니다." }
-                        objectStorageRepository.upload(
-                            ObjectStorageRepository.COURSE_IMAGE_PATH,
-                            ObjectStorageRepository.generateFileName(
-                                FilenameUtils
-                                    .getExtension(courseImage.originalFilename)
-                                    .lowercase(Locale.getDefault()),
-                            ),
-                            courseImage.inputStream,
-                        )
+                        saveImage(ObjectStorageRepository.COURSE_IMAGE_PATH, courseImage)
                     },
                     CourseCreatorType.USER,
                     creatorId = userId,
@@ -97,5 +107,21 @@ class CourseCompletionHistoryService(
             courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
 
         return CourseCompletionHistoryDetailResponse.from(courseCompletionHistory)
+    }
+
+    private fun saveImage(
+        path: String,
+        imageFile: MultipartFile,
+    ): String {
+        requireNotNull(imageFile.originalFilename) { "코스 이미지의 원본 파일명이 필요합니다." }
+        return objectStorageRepository.upload(
+            path,
+            ObjectStorageRepository.generateFileName(
+                FilenameUtils
+                    .getExtension(imageFile.originalFilename)
+                    .lowercase(Locale.getDefault()),
+            ),
+            imageFile.inputStream,
+        )
     }
 }

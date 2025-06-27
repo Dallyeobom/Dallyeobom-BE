@@ -74,7 +74,7 @@ class CourseCreateUtil(
                         ByteArrayInputStream(imageBytes),
                     ),
                 length = CourseLengthUtil.calculateTotalDistance(courseDto.path),
-                startPoint = path.startPoint,
+                startPoint = path.startPoint.also { it.srid = WGS84_SRID },
                 visibility = courseDto.visibility,
             ),
         )
