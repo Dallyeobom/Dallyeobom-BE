@@ -1,9 +1,12 @@
 package kr.dallyeobom.controller.courseCompletionHistory
 
 import jakarta.validation.constraints.Positive
+import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
+import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryResponse
 import kr.dallyeobom.service.CourseCompletionHistoryService
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.HttpStatus
@@ -38,8 +41,18 @@ class CourseCompletionHistoryController(
 
     @GetMapping("/{id}")
     override fun getCourseCompletionHistoryDetail(
+        @LoginUserId
+        userId: Long,
         @PathVariable
         @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
         id: Long,
-    ): CourseCompletionHistoryDetailResponse = courseCompletionHistoryService.getCourseCompletionHistoryDetail(id)
+    ): CourseCompletionHistoryDetailResponse = courseCompletionHistoryService.getCourseCompletionHistoryDetail(userId, id)
+
+    @GetMapping("/user/{userId}")
+    override fun getCourseCompletionHistoryListByUserId(
+        @PathVariable
+        userId: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<CourseCompletionHistoryResponse> =
+        courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(userId, sliceRequest)
 }

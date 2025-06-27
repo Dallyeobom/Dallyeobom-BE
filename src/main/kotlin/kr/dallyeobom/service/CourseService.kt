@@ -85,9 +85,13 @@ class CourseService(
                 request.maxCount,
             ).map { NearByCourseSearchResponse.from(it, objectStorageRepository.getDownloadUrl(it.overviewImage)) }
 
-    fun getCourseDetail(id: Long): CourseDetailResponse {
+    fun getCourseDetail(
+        userId: Long,
+        id: Long,
+    ): CourseDetailResponse {
         val course = courseRepository.findById(id).getOrNull() ?: throw CourseNotFoundException()
         return CourseDetailResponse.from(
+            userId,
             course,
             course.image?.let { objectStorageRepository.getDownloadUrl(it) },
             objectStorageRepository.getDownloadUrl(course.overviewImage),
