@@ -11,6 +11,7 @@ import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
 import kr.dallyeobom.exception.CourseCompletionHistoryNotFoundException
 import kr.dallyeobom.exception.CourseNotFoundException
+import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseCompletionImageRepository
 import kr.dallyeobom.repository.CourseRepository
@@ -43,7 +44,7 @@ class CourseCompletionHistoryService(
         courseImage: MultipartFile?,
         completionImages: List<MultipartFile>,
     ): CourseCompletionCreateResponse {
-        val user = userRepository.findById(userId).get() // 없을수가 없는 정보라 get() 사용
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         val courseCompletionHistory =
             courseCompletionHistoryRepository
                 .save(
