@@ -5,6 +5,7 @@ import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.service.CourseService
+import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -31,8 +32,10 @@ class CourseController(
 
     @GetMapping("/{id}")
     override fun getCourseDetail(
+        @LoginUserId
+        userId: Long,
         @PathVariable
         @Positive(message = "코스 ID는 양수여야 합니다.")
         id: Long,
-    ): CourseDetailResponse = courseService.getCourseDetail(id)
+    ): CourseDetailResponse = courseService.getCourseDetail(userId, id)
 }

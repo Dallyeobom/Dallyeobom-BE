@@ -70,6 +70,7 @@ interface CourseCompletionHistoryControllerSpec {
         ],
     )
     fun getCourseCompletionHistoryDetail(
+        userId: Long,
         @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
         @Schema(description = "상세조회 하고자 하는 완주 기록의 ID", example = "1")
         id: Long,

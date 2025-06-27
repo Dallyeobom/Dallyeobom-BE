@@ -23,9 +23,12 @@ data class CourseDetailResponse(
     @Schema(description = "코스 길이 (미터 단위)", example = "15000")
     val length: Int,
     val path: List<LatLngDto>,
+    @Schema(description = "현재 유저가 해당 코스의 생성자 인지 여부 - 이 값을 가지고 나중에 코스 수정 API 호출 가능 여부를 결정하면 됩니다", example = "true")
+    val isCreator: Boolean?,
 ) {
     companion object {
         fun from(
+            userId: Long,
             course: Course,
             imageUrl: String?,
             overViewImageUrl: String,
@@ -39,6 +42,7 @@ data class CourseDetailResponse(
             overViewImageUrl = overViewImageUrl,
             length = course.length,
             path = course.path.coordinates.map { LatLngDto(it.x, it.y) },
+            isCreator = course.creatorId == userId,
         )
     }
 }

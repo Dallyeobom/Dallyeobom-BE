@@ -9,6 +9,8 @@ class CourseCompletionHistoryDetailResponse(
     val id: Long = 0L,
     @Schema(description = "코스 ID", example = "1")
     val courseId: Long?,
+    @Schema(description = "현재 유저가 해당 코스의 생성자 인지 여부, 코스 ID가 없으면 null - 이 값을 가지고 나중에 코스 수정 API 호출 가능 여부를 결정하면 됩니다", example = "true")
+    val isCreator: Boolean?,
     @Schema(description = "유저 ID", example = "1")
     val userId: Long,
     @Schema(description = "코스 리뷰", example = "이 코스는 정말 좋았습니다! 다음에도 또 달리고 싶어요.")
@@ -25,12 +27,14 @@ class CourseCompletionHistoryDetailResponse(
 ) {
     companion object {
         fun from(
+            userId: Long,
             courseCompletionHistory: CourseCompletionHistory,
             imageUrls: List<String>,
         ): CourseCompletionHistoryDetailResponse =
             CourseCompletionHistoryDetailResponse(
                 id = courseCompletionHistory.id,
                 courseId = courseCompletionHistory.course?.id,
+                isCreator = courseCompletionHistory.course?.let { it.creatorId == userId },
                 userId = courseCompletionHistory.user.id,
                 review = courseCompletionHistory.review,
                 interval = courseCompletionHistory.interval.toSeconds(),

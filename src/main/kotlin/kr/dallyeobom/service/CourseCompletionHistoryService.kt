@@ -106,13 +106,16 @@ class CourseCompletionHistoryService(
         }
 
     @Transactional(readOnly = true)
-    fun getCourseCompletionHistoryDetail(id: Long): CourseCompletionHistoryDetailResponse {
+    fun getCourseCompletionHistoryDetail(
+        userId: Long,
+        id: Long,
+    ): CourseCompletionHistoryDetailResponse {
         val courseCompletionHistory =
             courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
         val completionImages = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
         val imageUrl = completionImages.map { image -> objectStorageRepository.getDownloadUrl(image.image) }
 
-        return CourseCompletionHistoryDetailResponse.from(courseCompletionHistory, imageUrl)
+        return CourseCompletionHistoryDetailResponse.from(userId, courseCompletionHistory, imageUrl)
     }
 
     @Transactional(readOnly = true)

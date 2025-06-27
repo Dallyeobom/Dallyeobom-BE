@@ -41,10 +41,12 @@ class CourseCompletionHistoryController(
 
     @GetMapping("/{id}")
     override fun getCourseCompletionHistoryDetail(
+        @LoginUserId
+        userId: Long,
         @PathVariable
         @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
         id: Long,
-    ): CourseCompletionHistoryDetailResponse = courseCompletionHistoryService.getCourseCompletionHistoryDetail(id)
+    ): CourseCompletionHistoryDetailResponse = courseCompletionHistoryService.getCourseCompletionHistoryDetail(userId, id)
 
     @GetMapping("/user/{userId}")
     override fun getCourseCompletionHistoryListByUserId(
