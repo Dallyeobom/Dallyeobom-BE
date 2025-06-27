@@ -16,6 +16,7 @@ enum class ErrorCode(
 
     // FORBIDDEN는 40300부터 시작
     FORBIDDEN(HttpStatus.FORBIDDEN, 40300, "접근 권한이 없습니다."),
+    NOT_COURSE_CREATOR(HttpStatus.FORBIDDEN, 40301, "해당 코스의 생성자가 아닙니다."),
 
     // 리소스 NOT FOUND는 40400부터 시작
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, 40400, "해당 유저를 찾을 수 없습니다."),

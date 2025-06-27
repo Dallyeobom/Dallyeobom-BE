@@ -3,6 +3,7 @@ package kr.dallyeobom.service
 import com.google.maps.model.LatLng
 import io.jenetics.jpx.GPX
 import kr.dallyeobom.client.TourApiClient
+import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
@@ -14,10 +15,14 @@ import kr.dallyeobom.entity.CourseVisibility
 import kr.dallyeobom.exception.BaseException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
+import kr.dallyeobom.exception.NotCourseCreatorException
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.util.CourseCreateUtil
+import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 import java.util.Locale
 import kotlin.jvm.optionals.getOrNull
 
@@ -92,5 +97,42 @@ class CourseService(
             course.image?.let { objectStorageRepository.getDownloadUrl(it) },
             objectStorageRepository.getDownloadUrl(course.overviewImage),
         )
+    }
+
+    @Transactional
+    fun updateCourse(
+        userId: Long,
+        id: Long,
+        request: CourseUpdateRequest,
+        imageFile: MultipartFile?,
+    ) {
+        val course = courseRepository.findById(id).getOrNull() ?: throw CourseNotFoundException()
+        if (course.creatorId != userId) {
+            throw NotCourseCreatorException()
+        }
+
+        request.name?.let { course.name = it }
+        request.description?.let { course.description = it }
+        request.courseLevel?.let { course.courseLevel = it }
+        request.courseVisibility?.let {
+            when (it) {
+                CourseVisibility.PUBLIC -> course.restore()
+                CourseVisibility.PRIVATE -> course.delete()
+            }
+            course.visibility = it
+        }
+
+        if (imageFile != null) {
+            course.image =
+                objectStorageRepository.upload(
+                    ObjectStorageRepository.COURSE_IMAGE_PATH,
+                    ObjectStorageRepository.generateFileName(
+                        FilenameUtils
+                            .getExtension(imageFile.originalFilename)
+                            .lowercase(Locale.getDefault()),
+                    ),
+                    imageFile.inputStream,
+                )
+        }
     }
 }
