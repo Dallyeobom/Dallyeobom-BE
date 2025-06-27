@@ -22,7 +22,7 @@ data class CourseCompletionHistoryResponse(
         ): CourseCompletionHistoryResponse =
             CourseCompletionHistoryResponse(
                 id = item.id,
-                courseId = item.course?.takeIf { it.deletedDateTime == null }?.id,
+                courseId = item.course?.id,
                 interval = item.interval.toSeconds(),
                 length = item.length,
                 completionImage = imageUrl,
