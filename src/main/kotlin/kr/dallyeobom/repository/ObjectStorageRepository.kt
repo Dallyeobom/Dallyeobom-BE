@@ -2,8 +2,11 @@ package kr.dallyeobom.repository
 
 import io.awspring.cloud.s3.S3Template
 import kr.dallyeobom.config.properties.ObjectStorageProperties
+import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Repository
+import org.springframework.web.multipart.MultipartFile
 import java.io.InputStream
+import java.util.Locale
 import java.util.UUID
 
 @Repository
@@ -18,6 +21,18 @@ class ObjectStorageRepository(
     ): String {
         val result = s3Template.upload(objectStorageProperties.bucket, path + key, stream)
         return result.filename
+    }
+
+    fun upload(
+        path: String,
+        file: MultipartFile,
+    ): String {
+        requireNotNull(file.originalFilename) { "파일의 원본 파일명이 필요합니다." }
+        val extension =
+            FilenameUtils
+                .getExtension(file.originalFilename)
+                .lowercase(Locale.getDefault())
+        return upload(path, generateFileName(extension), file.inputStream)
     }
 
     fun getDownloadUrl(key: String): String = "${objectStorageProperties.cdnUrl}/$key"

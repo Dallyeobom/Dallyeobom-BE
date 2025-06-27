@@ -9,14 +9,12 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
 import org.hibernate.annotations.SQLDelete
-import org.hibernate.annotations.SQLRestriction
 import org.locationtech.jts.geom.LineString
 import org.locationtech.jts.geom.Point
 
 @Entity
 @Table
 @SQLDelete(sql = "UPDATE course SET deleted_datetime = current_timestamp WHERE id = ?")
-@SQLRestriction("deleted_datetime IS NULL")
 class Course(
     @Column(nullable = false, length = 30)
     var name: String,

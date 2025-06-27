@@ -2,6 +2,7 @@ package kr.dallyeobom.controller.courseCompletionHistory
 
 import jakarta.validation.constraints.Positive
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.service.CourseCompletionHistoryService
@@ -42,4 +43,17 @@ class CourseCompletionHistoryController(
         @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
         id: Long,
     ): CourseCompletionHistoryDetailResponse = courseCompletionHistoryService.getCourseCompletionHistoryDetail(id)
+
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping("/{id}/create-course", consumes = [MULTIPART_FORM_DATA_VALUE])
+    override fun createCourseFromCompletionHistory(
+        @LoginUserId
+        userId: Long,
+        @PathVariable
+        id: Long,
+        @RequestPart
+        request: CourseCreateRequest,
+        @RequestPart(required = false)
+        courseImage: MultipartFile?,
+    ) = courseCompletionHistoryService.createCourseFromCompletionHistory(userId, id, request, courseImage)
 }

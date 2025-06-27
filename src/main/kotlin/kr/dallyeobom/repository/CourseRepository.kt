@@ -20,7 +20,7 @@ interface CourseRepository : JpaRepository<Course, Long> {
             ),
             'sdo_num_res=' || :maxCount || ' distance=' || :radius || ' unit=meter',
             1
-        ) = 'TRUE'
+        ) = 'TRUE' and DELETED_DATETIME is NULL
         ORDER BY SDO_NN_DISTANCE(1)
         """,
         nativeQuery = true,
