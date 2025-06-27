@@ -76,7 +76,7 @@ interface CourseCompletionHistoryControllerSpec {
         summary = "코스 완주기록을 기반으로 코스 생성",
         description = "코스 완주기록 ID를 입력받아 해당 기록을 기반으로 코스를 생성합니다.",
         responses = [
-            ApiResponse(responseCode = "204", description = "코스 완주 기록 상세 정보"),
+            ApiResponse(responseCode = "201", description = "코스 생성 성공"),
             ApiResponse(
                 responseCode = "400",
                 description = """

@@ -24,12 +24,10 @@ import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.CourseLengthUtil
 import kr.dallyeobom.util.requireNull
-import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.Duration
-import java.util.Locale
 import kotlin.jvm.optionals.getOrNull
 
 @Service
@@ -158,12 +156,7 @@ class CourseCompletionHistoryService(
         requireNotNull(imageFile.originalFilename) { "코스 이미지의 원본 파일명이 필요합니다." }
         return objectStorageRepository.upload(
             path,
-            ObjectStorageRepository.generateFileName(
-                FilenameUtils
-                    .getExtension(imageFile.originalFilename)
-                    .lowercase(Locale.getDefault()),
-            ),
-            imageFile.inputStream,
+            imageFile,
         )
     }
 }

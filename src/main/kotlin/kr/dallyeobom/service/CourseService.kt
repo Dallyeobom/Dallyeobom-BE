@@ -19,7 +19,6 @@ import kr.dallyeobom.exception.NotCourseCreatorException
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.util.CourseCreateUtil
-import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -123,15 +122,11 @@ class CourseService(
         }
 
         if (imageFile != null) {
+            course.image?.let { objectStorageRepository.delete(it) }
             course.image =
                 objectStorageRepository.upload(
                     ObjectStorageRepository.COURSE_IMAGE_PATH,
-                    ObjectStorageRepository.generateFileName(
-                        FilenameUtils
-                            .getExtension(imageFile.originalFilename)
-                            .lowercase(Locale.getDefault()),
-                    ),
-                    imageFile.inputStream,
+                    imageFile,
                 )
         }
     }
