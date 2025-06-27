@@ -1,6 +1,8 @@
 package kr.dallyeobom.service
 
+import com.google.maps.model.LatLng
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.dto.CourseCreateDto
@@ -9,8 +11,10 @@ import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCompletionImage
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
+import kr.dallyeobom.exception.AlreadyCreatedCourseException
 import kr.dallyeobom.exception.CourseCompletionHistoryNotFoundException
 import kr.dallyeobom.exception.CourseNotFoundException
+import kr.dallyeobom.exception.NotCourseCompletionHistoryCreatorException
 import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseCompletionImageRepository
@@ -107,6 +111,44 @@ class CourseCompletionHistoryService(
             courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
 
         return CourseCompletionHistoryDetailResponse.from(courseCompletionHistory)
+    }
+
+    @Transactional
+    fun createCourseFromCompletionHistory(
+        userId: Long,
+        id: Long,
+        request: CourseCreateRequest,
+        courseImage: MultipartFile?,
+    ) {
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val courseCompletionHistory =
+            courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
+
+        if (courseCompletionHistory.user.id != user.id) {
+            throw NotCourseCompletionHistoryCreatorException()
+        }
+
+        if (courseCompletionHistory.course != null) {
+            throw AlreadyCreatedCourseException()
+        }
+
+        val course =
+            courseCreateUtil.saveCourse(
+                CourseCreateDto(
+                    request.name,
+                    request.description,
+                    request.courseLevel,
+                    courseImage?.let {
+                        saveImage(ObjectStorageRepository.COURSE_IMAGE_PATH, courseImage)
+                    },
+                    CourseCreatorType.USER,
+                    creatorId = userId,
+                    path = courseCompletionHistory.path.coordinates.map { LatLng(it.x, it.y) },
+                    visibility = CourseVisibility.PUBLIC,
+                ),
+            )
+
+        courseCompletionHistory.course = course
     }
 
     private fun saveImage(
