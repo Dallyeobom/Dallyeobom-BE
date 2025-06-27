@@ -122,7 +122,7 @@ class CourseCompletionHistoryService(
     ): SliceResponse<CourseCompletionHistoryResponse> {
         val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         val courseCompletionHistories =
-            courseCompletionHistoryRepository.findAllByUserOrderByCreatedDateTimeDesc(user, sliceRequest)
+            courseCompletionHistoryRepository.findSliceByUser(user, sliceRequest)
         val completionImageMap =
             courseCompletionImageRepository
                 .findAllByCompletionIn(

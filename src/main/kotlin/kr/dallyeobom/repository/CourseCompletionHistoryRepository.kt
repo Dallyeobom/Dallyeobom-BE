@@ -24,7 +24,7 @@ interface CustomCourseCompletionHistoryRepository {
         limit: Int = 100,
     ): List<UserRank>
 
-    fun findAllByUserOrderByCreatedDateTimeDesc(
+    fun findSliceByUser(
         user: User,
         sliceRequest: SliceRequest,
     ): Slice<CourseCompletionHistory>
@@ -58,7 +58,7 @@ class CustomCourseCompletionHistoryRepositoryImpl(
         )
     }
 
-    override fun findAllByUserOrderByCreatedDateTimeDesc(
+    override fun findSliceByUser(
         user: User,
         sliceRequest: SliceRequest,
     ) = kotlinJdslJpqlExecutor.getSlice(Pageable.ofSize(sliceRequest.size)) {
@@ -68,6 +68,6 @@ class CustomCourseCompletionHistoryRepositoryImpl(
             .whereAnd(
                 path(CourseCompletionHistory::user).eq(user),
                 sliceRequest.lastId?.let { path(CourseCompletionHistory::id).lt(it) },
-            ).orderBy(path(CourseCompletionHistory::createdDateTime).desc())
+            ).orderBy(path(CourseCompletionHistory::id).desc())
     }
 }
