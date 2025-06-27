@@ -20,9 +20,14 @@ class CourseCompletionHistoryDetailResponse(
         example = "[{\"latitude\": 37.5665, \"longitude\": 126.978}, {\"latitude\": 37.567, \"longitude\": 126.979}]",
     )
     val path: List<LatLngDto>,
+    @Schema(description = "코스 완주 인증샷들", example = "[\"https://example.com/image.jpg\"]")
+    val completionImages: List<String>,
 ) {
     companion object {
-        fun from(courseCompletionHistory: CourseCompletionHistory): CourseCompletionHistoryDetailResponse =
+        fun from(
+            courseCompletionHistory: CourseCompletionHistory,
+            imageUrls: List<String>,
+        ): CourseCompletionHistoryDetailResponse =
             CourseCompletionHistoryDetailResponse(
                 id = courseCompletionHistory.id,
                 courseId = courseCompletionHistory.course?.id,
@@ -30,6 +35,7 @@ class CourseCompletionHistoryDetailResponse(
                 review = courseCompletionHistory.review,
                 interval = courseCompletionHistory.interval.toSeconds(),
                 path = courseCompletionHistory.path.coordinates.map { LatLngDto(it.x, it.y) },
+                completionImages = imageUrls,
             )
     }
 }

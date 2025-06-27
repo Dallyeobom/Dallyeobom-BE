@@ -8,10 +8,14 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 import kr.dallyeobom.config.swagger.SwaggerTag
+import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
+import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryResponse
 import kr.dallyeobom.util.validator.MaxFileSize
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.multipart.MultipartFile
 
@@ -70,4 +74,20 @@ interface CourseCompletionHistoryControllerSpec {
         @Schema(description = "상세조회 하고자 하는 완주 기록의 ID", example = "1")
         id: Long,
     ): CourseCompletionHistoryDetailResponse
+
+    @Operation(
+        summary = "특정 유저의 코스 완주 기록 리스트 조회",
+        description = "특정 유저의 코스 완주 기록 리스트를 조회합니다. 서버 조회 성능을 위해 무한스크롤 방식으로 구현되었습니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "코스 완주 기록 정보 리스트"),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 유저가 존재하지 않음", content = arrayOf(Content())),
+        ],
+    )
+    fun getCourseCompletionHistoryListByUserId(
+        @Positive(message = "유저 ID는 양수여야 합니다.")
+        @Schema(description = "조회하고자 하는 유저의 ID", example = "1")
+        userId: Long,
+        @Validated
+        @ParameterObject sliceRequest: SliceRequest,
+    ): SliceResponse<CourseCompletionHistoryResponse>
 }
