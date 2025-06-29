@@ -91,4 +91,29 @@ interface CourseCompletionHistoryControllerSpec {
         @Validated
         @ParameterObject sliceRequest: SliceRequest,
     ): SliceResponse<CourseCompletionHistoryResponse>
+
+    @Operation(
+        summary = "코스 완주 기록 삭제",
+        description = "코스 완주 기록 ID를 입력받아 해당 기록을 삭제합니다.",
+        responses = [
+            ApiResponse(responseCode = "204", description = "코스 완주 기록 삭제 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 - 코스 완주 기록 ID가 양수가 아님",
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "유저가 생성한 코스 완주 기록이 아님",
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(responseCode = "404", description = "존재하지 않는 코스 완주 기록 ID를 입력한 경우", content = arrayOf(Content())),
+        ],
+    )
+    fun deleteCourseCompletionHistory(
+        userId: Long,
+        @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
+        @Schema(description = "삭제하고자 하는 코스 완주 기록의 ID", example = "1")
+        id: Long,
+    )
 }

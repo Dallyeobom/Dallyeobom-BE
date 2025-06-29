@@ -55,4 +55,12 @@ class CourseCompletionHistoryController(
         sliceRequest: SliceRequest,
     ): SliceResponse<CourseCompletionHistoryResponse> =
         courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(userId, sliceRequest)
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PostMapping("/{id}/delete")
+    override fun deleteCourseCompletionHistory(
+        @LoginUserId
+        userId: Long,
+        @PathVariable id: Long,
+    ) = courseCompletionHistoryService.deleteCourseCompletionHistory(userId, id)
 }
