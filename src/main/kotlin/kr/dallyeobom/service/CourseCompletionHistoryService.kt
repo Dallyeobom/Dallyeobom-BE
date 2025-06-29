@@ -175,15 +175,14 @@ class CourseCompletionHistoryService(
 
         val images = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
 
-        images.forEach { image ->
-            objectStorageRepository.delete(image.image)
-            courseCompletionImageRepository.delete(image)
-        }
-
+        courseCompletionImageRepository.deleteAll(images)
         courseCompletionHistoryRepository.delete(courseCompletionHistory)
         val course = courseCompletionHistory.course
         if (course != null && course.creatorId == userId && course.deletedDateTime == null) {
             courseRepository.deleteById(course.id)
+        }
+        images.forEach { image ->
+            objectStorageRepository.delete(image.image)
         }
     }
 }
