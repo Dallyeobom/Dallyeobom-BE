@@ -23,6 +23,7 @@ import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
+import kr.dallyeobom.util.lock.RedisLock
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -137,6 +138,12 @@ class CourseService(
         }
     }
 
+    @RedisLock(
+        prefix = "courseLikeToggle",
+        key = "#userId + ':' +#id",
+        waitTime = 5,
+        leaseTime = 3,
+    )
     @Transactional
     fun courseLikeToggle(
         userId: Long,
@@ -144,10 +151,8 @@ class CourseService(
     ): CourseLikeResponse {
         val user = userRepository.findById(userId).get()
         val course = courseRepository.findById(id).getOrNull()?.takeIf { it.deletedDateTime == null } ?: throw CourseNotFoundException()
-        val isAlreadyLiked = courseLikeHistoryRepository.existsByCourseAndUser(course, user)
-        if (isAlreadyLiked) {
-            courseLikeHistoryRepository.deleteByCourseAndUser(course, user)
-        } else {
+        val isAlreadyLiked = courseLikeHistoryRepository.deleteByCourseAndUser(course, user) > 0 // 삭제된 행이 있다면 이미 좋아요를 누른 상태
+        if (!isAlreadyLiked) {
             courseLikeHistoryRepository.save(CourseLikeHistory(course, user))
         }
         return CourseLikeResponse(!isAlreadyLiked, courseLikeHistoryRepository.countByCourse(course))
