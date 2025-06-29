@@ -6,18 +6,22 @@ import kr.dallyeobom.client.TourApiClient
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
+import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseLevel
+import kr.dallyeobom.entity.CourseLikeHistory
 import kr.dallyeobom.entity.CourseVisibility
 import kr.dallyeobom.exception.BaseException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.exception.NotCourseCreatorException
+import kr.dallyeobom.repository.CourseLikeHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
+import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -31,6 +35,8 @@ class CourseService(
     private val objectStorageRepository: ObjectStorageRepository,
     private val tourApiClient: TourApiClient,
     private val courseCreateUtil: CourseCreateUtil,
+    private val courseLikeHistoryRepository: CourseLikeHistoryRepository,
+    private val userRepository: UserRepository,
 ) {
     // 관광데이터 API를 통해 경로를 가져오고, DB를 채워넣는 메소드
     // 해당 메소드는 멱등성보장이 되지 않는다. 따라서 여러번 호출하면 중복된 코스가 생성된다.
@@ -129,5 +135,21 @@ class CourseService(
                     imageFile,
                 )
         }
+    }
+
+    @Transactional
+    fun courseLikeToggle(
+        userId: Long,
+        id: Long,
+    ): CourseLikeResponse {
+        val user = userRepository.findById(userId).get()
+        val course = courseRepository.findById(id).getOrNull()?.takeIf { it.deletedDateTime == null } ?: throw CourseNotFoundException()
+        val isAlreadyLiked = courseLikeHistoryRepository.existsByCourseAndUser(course, user)
+        if (isAlreadyLiked) {
+            courseLikeHistoryRepository.deleteByCourseAndUser(course, user)
+        } else {
+            courseLikeHistoryRepository.save(CourseLikeHistory(course, user))
+        }
+        return CourseLikeResponse(!isAlreadyLiked, courseLikeHistoryRepository.countByCourse(course))
     }
 }

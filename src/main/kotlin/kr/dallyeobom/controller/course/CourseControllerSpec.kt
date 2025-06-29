@@ -10,6 +10,7 @@ import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
+import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springdoc.core.annotations.ParameterObject
@@ -94,4 +95,28 @@ interface CourseControllerSpec {
         @Schema(description = "코스 대표 이미지", required = false)
         courseImage: MultipartFile?,
     )
+
+    @Operation(
+        summary = "코스 좋아요 토글",
+        description = "코스의 좋아요를 토글합니다. 이미 좋아요를 누른 경우 좋아요가 취소되고, 좋아요를 누르지 않은 경우 좋아요가 추가됩니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "좋아요 토글 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 - 코스 ID가 양수가 아님",
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "ID에 해당하는 코스가 존재하지 않음",
+                content = arrayOf(Content()),
+            ),
+        ],
+    )
+    fun courseLikeToggle(
+        userId: Long,
+        @Positive(message = "코스 ID는 양수여야 합니다.")
+        @Schema(description = "좋아요 토글하고자 하는 코스의 ID", example = "1")
+        id: Long,
+    ): CourseLikeResponse
 }
