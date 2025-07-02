@@ -21,7 +21,7 @@ class CourseCompletionHistory(
     // 유저가 코스를 선택하고 달린 경우에만 코스를 연결
     @ManyToOne
     @JoinColumn
-    val course: Course?,
+    var course: Course?,
     @ManyToOne
     @JoinColumn(nullable = false, updatable = false)
     val user: User,
