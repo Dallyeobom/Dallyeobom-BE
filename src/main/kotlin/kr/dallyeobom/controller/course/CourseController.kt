@@ -1,17 +1,22 @@
 package kr.dallyeobom.controller.course
 
-import jakarta.validation.constraints.Positive
+import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.service.CourseService
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.HttpStatus.CREATED
+import org.springframework.http.HttpStatus.NO_CONTENT
+import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/v1/course")
@@ -35,7 +40,19 @@ class CourseController(
         @LoginUserId
         userId: Long,
         @PathVariable
-        @Positive(message = "코스 ID는 양수여야 합니다.")
         id: Long,
     ): CourseDetailResponse = courseService.getCourseDetail(userId, id)
+
+    @ResponseStatus(NO_CONTENT)
+    @PatchMapping("/{id}", consumes = [MULTIPART_FORM_DATA_VALUE])
+    override fun updateCourse(
+        @LoginUserId
+        userId: Long,
+        @PathVariable
+        id: Long,
+        @RequestPart
+        request: CourseUpdateRequest,
+        @RequestPart(required = false)
+        courseImage: MultipartFile?,
+    ) = courseService.updateCourse(userId, id, request, courseImage)
 }

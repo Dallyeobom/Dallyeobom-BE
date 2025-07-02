@@ -1,8 +1,10 @@
 package kr.dallyeobom.service
 
+import com.google.maps.model.LatLng
 import kr.dallyeobom.controller.common.request.SliceRequest
 import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryResponse
@@ -12,8 +14,10 @@ import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCompletionImage
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
+import kr.dallyeobom.exception.AlreadyCreatedCourseException
 import kr.dallyeobom.exception.CourseCompletionHistoryNotFoundException
 import kr.dallyeobom.exception.CourseNotFoundException
+import kr.dallyeobom.exception.NotCourseCompletionHistoryCreatorException
 import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseCompletionImageRepository
@@ -23,12 +27,10 @@ import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.CourseLengthUtil
 import kr.dallyeobom.util.requireNull
-import org.apache.commons.io.FilenameUtils
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
 import java.time.Duration
-import java.util.Locale
 import kotlin.jvm.optionals.getOrNull
 
 @Service
@@ -47,7 +49,7 @@ class CourseCompletionHistoryService(
         courseImage: MultipartFile?,
         completionImages: List<MultipartFile>,
     ): CourseCompletionCreateResponse {
-        val user = userRepository.findById(userId).get() // 없을수가 없는 정보라 get() 사용
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         val courseCompletionHistory =
             courseCompletionHistoryRepository
                 .save(
@@ -145,6 +147,44 @@ class CourseCompletionHistoryService(
         )
     }
 
+    @Transactional
+    fun createCourseFromCompletionHistory(
+        userId: Long,
+        id: Long,
+        request: CourseCreateRequest,
+        courseImage: MultipartFile?,
+    ) {
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val courseCompletionHistory =
+            courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
+
+        if (courseCompletionHistory.user.id != user.id) {
+            throw NotCourseCompletionHistoryCreatorException()
+        }
+
+        if (courseCompletionHistory.course != null) {
+            throw AlreadyCreatedCourseException()
+        }
+
+        val course =
+            courseCreateUtil.saveCourse(
+                CourseCreateDto(
+                    request.name,
+                    request.description,
+                    request.courseLevel,
+                    courseImage?.let {
+                        saveImage(ObjectStorageRepository.COURSE_IMAGE_PATH, courseImage)
+                    },
+                    CourseCreatorType.USER,
+                    creatorId = userId,
+                    path = courseCompletionHistory.path.coordinates.map { LatLng(it.x, it.y) },
+                    visibility = CourseVisibility.PUBLIC,
+                ),
+            )
+
+        courseCompletionHistory.course = course
+    }
+
     private fun saveImage(
         path: String,
         imageFile: MultipartFile,
@@ -152,12 +192,7 @@ class CourseCompletionHistoryService(
         requireNotNull(imageFile.originalFilename) { "코스 이미지의 원본 파일명이 필요합니다." }
         return objectStorageRepository.upload(
             path,
-            ObjectStorageRepository.generateFileName(
-                FilenameUtils
-                    .getExtension(imageFile.originalFilename)
-                    .lowercase(Locale.getDefault()),
-            ),
-            imageFile.inputStream,
+            imageFile,
         )
     }
 
