@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.util.validator.MaxFileSize
@@ -70,4 +71,36 @@ interface CourseCompletionHistoryControllerSpec {
         @Schema(description = "상세조회 하고자 하는 완주 기록의 ID", example = "1")
         id: Long,
     ): CourseCompletionHistoryDetailResponse
+
+    @Operation(
+        summary = "코스 완주기록을 기반으로 코스 생성",
+        description = "코스 완주기록 ID를 입력받아 해당 기록을 기반으로 코스를 생성합니다.",
+        responses = [
+            ApiResponse(responseCode = "201", description = "코스 생성 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 완주기록 ID가 양수가 아님  
+        • 코스 설명이 1자 미만이거나 500자를 초과함
+        • 코스명이 1자 미만이거나 30자를 초과함
+        • 파일 사이즈가 1MB를 초과함
+        • 이미 해당 완주 기록으로 생성된 코스가 존재함
+      """,
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(responseCode = "403", description = "유저가 생성한 완주기록이 아님", content = arrayOf(Content())),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 기록 존재하지 않음", content = arrayOf(Content())),
+        ],
+    )
+    fun createCourseFromCompletionHistory(
+        userId: Long,
+        @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
+        @Schema(description = "생성하고자 하는 코스의 완주 기록 ID", example = "1")
+        id: Long,
+        @Validated request: CourseCreateRequest,
+        @MaxFileSize
+        @Schema(description = "코스 대표사진 - 코스 등록시에만 사용하며 없어도됨, 사진의 최대 크기는 1MB")
+        courseImage: MultipartFile?,
+    )
 }
