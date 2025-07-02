@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.constraints.Size
-import kr.dallyeobom.client.KakaoTokenResponse
 import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
@@ -96,7 +95,7 @@ interface AuthControllerSpec {
                 content = [
                     Content(
                         mediaType = "application/json",
-                        schema = Schema(implementation = KakaoTokenResponse::class),
+                        schema = Schema(implementation = KakaoUserCreateRequest::class),
                         examples = [
                             ExampleObject(
                                 name = "회원가입 요청 예시",
