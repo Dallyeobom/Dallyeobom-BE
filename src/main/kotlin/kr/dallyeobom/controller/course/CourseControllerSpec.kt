@@ -7,11 +7,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.constraints.Positive
 import kr.dallyeobom.config.swagger.SwaggerTag
+import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
+import kr.dallyeobom.util.validator.MaxFileSize
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.multipart.MultipartFile
 
 @Tag(name = SwaggerTag.COURSE)
 interface CourseControllerSpec {
@@ -61,4 +64,35 @@ interface CourseControllerSpec {
         @Schema(description = "상세조회 하고자 하는 코스의 ID", example = "1")
         id: Long,
     ): CourseDetailResponse
+
+    @Operation(
+        summary = "코스 정보 수정",
+        description = "본인이 올린 코스의 정보를 수정합니다. 수정할 데이터만 값을 보내면 되며 데이터를 안보내면 기존값 유지",
+        responses = [
+            ApiResponse(responseCode = "204", description = "코스 정보 수정 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 코스 ID가 양수가 아님  
+        • 코스 설명이 1자 미만이거나 500자를 초과함
+        • 코스명이 1자 미만이거나 30자를 초과함
+        • 파일 사이즈가 1MB를 초과함
+      """,
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(responseCode = "403", description = "유저가 생성한 코스가 아님", content = arrayOf(Content())),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 코스가 존재하지 않음", content = arrayOf(Content())),
+        ],
+    )
+    fun updateCourse(
+        userId: Long,
+        @Positive(message = "코스 ID는 양수여야 합니다.")
+        @Schema(description = "수정하고자 하는 코스의 ID", example = "1")
+        id: Long,
+        request: CourseUpdateRequest,
+        @MaxFileSize
+        @Schema(description = "코스 대표 이미지", required = false)
+        courseImage: MultipartFile?,
+    )
 }
