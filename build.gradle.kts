@@ -72,6 +72,12 @@ dependencies {
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.2.1") // 3.3버전에 이슈가 있어서 올리면 안됨
     // implementation("org.hibernate.search:hibernate-search-backend-elasticsearch:7.2.3.Final") // OpenSearch를 사용하게되면 주석 해제
 
+    // Dynamic Query
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.5.5")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:3.5.5")
+    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:3.5.5")
+    implementation("com.linecorp.kotlin-jdsl:hibernate-kotlin-jdsl-jakarta:2.2.1.RELEASE")
+
     // JWT
     implementation("io.jsonwebtoken:jjwt-api:0.12.6")
     implementation("io.jsonwebtoken:jjwt-impl:0.12.6")

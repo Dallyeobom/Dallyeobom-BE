@@ -1,10 +1,13 @@
 package kr.dallyeobom.service
 
 import com.google.maps.model.LatLng
+import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
+import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryResponse
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
@@ -104,11 +107,44 @@ class CourseCompletionHistoryService(
             null
         }
 
-    fun getCourseCompletionHistoryDetail(id: Long): CourseCompletionHistoryDetailResponse {
+    @Transactional(readOnly = true)
+    fun getCourseCompletionHistoryDetail(
+        userId: Long,
+        id: Long,
+    ): CourseCompletionHistoryDetailResponse {
         val courseCompletionHistory =
             courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
+        val completionImages = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
+        val imageUrl = completionImages.map { image -> objectStorageRepository.getDownloadUrl(image.image) }
 
-        return CourseCompletionHistoryDetailResponse.from(courseCompletionHistory)
+        return CourseCompletionHistoryDetailResponse.from(userId, courseCompletionHistory, imageUrl)
+    }
+
+    @Transactional(readOnly = true)
+    fun getCourseCompletionHistoryListByUserId(
+        userId: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<CourseCompletionHistoryResponse> {
+        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val courseCompletionHistories =
+            courseCompletionHistoryRepository.findSliceByUser(user, sliceRequest)
+        val completionImageMap =
+            courseCompletionImageRepository
+                .findAllByCompletionIn(
+                    courseCompletionHistories.content,
+                ).associateBy { it.completion.id }
+
+        return SliceResponse.from(
+            courseCompletionHistories.map { courseCompletionHistory ->
+                CourseCompletionHistoryResponse.from(
+                    courseCompletionHistory,
+                    objectStorageRepository.getDownloadUrl(
+                        completionImageMap[courseCompletionHistory.id]!!.image,
+                    ),
+                )
+            },
+            courseCompletionHistories.lastOrNull()?.id,
+        )
     }
 
     @Transactional

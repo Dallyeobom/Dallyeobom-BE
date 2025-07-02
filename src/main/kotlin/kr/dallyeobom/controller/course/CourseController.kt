@@ -37,9 +37,11 @@ class CourseController(
 
     @GetMapping("/{id}")
     override fun getCourseDetail(
+        @LoginUserId
+        userId: Long,
         @PathVariable
         id: Long,
-    ): CourseDetailResponse = courseService.getCourseDetail(id)
+    ): CourseDetailResponse = courseService.getCourseDetail(userId, id)
 
     @ResponseStatus(NO_CONTENT)
     @PatchMapping("/{id}", consumes = [MULTIPART_FORM_DATA_VALUE])
