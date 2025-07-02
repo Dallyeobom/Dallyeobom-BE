@@ -3,6 +3,7 @@ package kr.dallyeobom.controller.course
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
+import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.service.CourseService
 import kr.dallyeobom.util.LoginUserId
@@ -12,6 +13,7 @@ import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -55,4 +57,11 @@ class CourseController(
         @RequestPart(required = false)
         courseImage: MultipartFile?,
     ) = courseService.updateCourse(userId, id, request, courseImage)
+
+    @PostMapping("/{id}/like")
+    override fun courseLikeToggle(
+        @LoginUserId
+        userId: Long,
+        @PathVariable id: Long,
+    ): CourseLikeResponse = courseService.courseLikeToggle(userId, id)
 }
