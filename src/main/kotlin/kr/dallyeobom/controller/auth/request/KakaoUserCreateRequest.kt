@@ -9,4 +9,5 @@ data class KakaoUserCreateRequest(
     val nickName: String,
     @field:NotBlank(message = "provider 엑세스 토큰은 필수입니다.")
     val providerAccessToken: String,
+    val terms: List<TermsAgreeRequest>,
 )

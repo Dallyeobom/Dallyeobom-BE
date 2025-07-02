@@ -9,12 +9,17 @@ import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
 import kr.dallyeobom.entity.Provder
+import kr.dallyeobom.entity.TermsAgreeHistory
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.entity.UserOauthInfo
 import kr.dallyeobom.exception.AlreadyExistNicknameException
 import kr.dallyeobom.exception.AlreadyExistedProviderUserIdException
 import kr.dallyeobom.exception.InvalidRefreshTokenException
+import kr.dallyeobom.exception.TermsAgreedPolicyException
+import kr.dallyeobom.exception.TermsNotFoundException
 import kr.dallyeobom.exception.UserNotFoundException
+import kr.dallyeobom.repository.TermsAgreeHistoryRepository
+import kr.dallyeobom.repository.TermsRepository
 import kr.dallyeobom.repository.UserOauthInfoRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.jwt.JwtUtil
@@ -26,6 +31,8 @@ class UserService(
     private val userRepository: UserRepository,
     private val kakaoApiClient: KakaoApiClient,
     private val userOauthInfoRepository: UserOauthInfoRepository,
+    private val termsRepository: TermsRepository,
+    private val termsAgreeHistoryRepository: TermsAgreeHistoryRepository,
     private val jwtUtil: JwtUtil,
 ) {
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
@@ -99,7 +106,31 @@ class UserService(
                 ),
             )
         userOauthInfoRepository.save(UserOauthInfo.createKakaoOauthInfo(user, providerUserId))
+        validateTerms(request, user.id)
+
         return makeTokens(user)
+    }
+
+    private fun validateTerms(
+        request: KakaoUserCreateRequest,
+        userId: Long,
+    ) {
+        val termsRequestMap = request.terms.associateBy { it.termsType }
+        termsRepository
+            .findAll()
+            .forEach { terms ->
+                val submit = termsRequestMap[terms.type] ?: throw TermsNotFoundException(terms.type)
+                if (terms.required && !submit.agreed) {
+                    throw TermsAgreedPolicyException()
+                }
+                termsAgreeHistoryRepository.save(
+                    TermsAgreeHistory(
+                        userId = userId,
+                        termsId = terms.id,
+                        agreed = submit.agreed,
+                    ),
+                )
+            }
     }
 
     @Transactional(readOnly = true)
