@@ -116,21 +116,21 @@ class UserService(
         userId: Long,
     ) {
         val termsRequestMap = request.terms.associateBy { it.termsType }
-        termsRepository
-            .findAll()
-            .forEach { terms ->
-                val submit = termsRequestMap[terms.type] ?: throw TermsNotFoundException(terms.type)
-                if (terms.required && !submit.agreed) {
-                    throw TermsAgreedPolicyException()
-                }
-                termsAgreeHistoryRepository.save(
+        val termsAgreeHistories =
+            termsRepository
+                .findAll()
+                .map { terms ->
+                    val submit = termsRequestMap[terms.type] ?: throw TermsNotFoundException(terms.type)
+                    if (terms.required && !submit.agreed) {
+                        throw TermsAgreedPolicyException()
+                    }
                     TermsAgreeHistory(
                         userId = userId,
                         termsId = terms.id,
                         agreed = submit.agreed,
-                    ),
-                )
-            }
+                    )
+                }
+        termsAgreeHistoryRepository.saveAll(termsAgreeHistories)
     }
 
     @Transactional(readOnly = true)
