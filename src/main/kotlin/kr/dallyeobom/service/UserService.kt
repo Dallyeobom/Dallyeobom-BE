@@ -106,12 +106,12 @@ class UserService(
                 ),
             )
         userOauthInfoRepository.save(UserOauthInfo.createKakaoOauthInfo(user, providerUserId))
-        validateTerms(request, user.id)
+        validateAndSaveTermsAgreements(request, user.id)
 
         return makeTokens(user)
     }
 
-    private fun validateTerms(
+    private fun validateAndSaveTermsAgreements(
         request: KakaoUserCreateRequest,
         userId: Long,
     ) {

@@ -6,5 +6,5 @@ class TermsNotFoundException(
     termsTypes: TermsTypes,
 ) : BaseException(
         ErrorCode.TERMS_NOT_FOUND,
-        "해당 약관을 찾을 수 없습니다. type = $termsTypes",
+        "해당 약관 항목이 누락되었습니다. type = $termsTypes",
     )
