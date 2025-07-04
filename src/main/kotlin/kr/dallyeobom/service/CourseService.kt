@@ -3,6 +3,8 @@ package kr.dallyeobom.service
 import com.google.maps.model.LatLng
 import io.jenetics.jpx.GPX
 import kr.dallyeobom.client.TourApiClient
+import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
@@ -18,6 +20,7 @@ import kr.dallyeobom.exception.BaseException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.exception.NotCourseCreatorException
+import kr.dallyeobom.repository.CourseCompletionImageRepository
 import kr.dallyeobom.repository.CourseLikeHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
@@ -38,6 +41,7 @@ class CourseService(
     private val courseCreateUtil: CourseCreateUtil,
     private val courseLikeHistoryRepository: CourseLikeHistoryRepository,
     private val userRepository: UserRepository,
+    private val courseCompletionImageRepository: CourseCompletionImageRepository,
 ) {
     // 관광데이터 API를 통해 경로를 가져오고, DB를 채워넣는 메소드
     // 해당 메소드는 멱등성보장이 되지 않는다. 따라서 여러번 호출하면 중복된 코스가 생성된다.
@@ -107,6 +111,16 @@ class CourseService(
             course.image?.let { objectStorageRepository.getDownloadUrl(it) },
             objectStorageRepository.getDownloadUrl(course.overviewImage),
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getCourseImages(
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<String> {
+        val course = courseRepository.findById(id).getOrNull() ?: throw CourseNotFoundException()
+        val images = courseCompletionImageRepository.findSliceByCourse(course, sliceRequest)
+        return SliceResponse.from(images.map { objectStorageRepository.getDownloadUrl(it.image) }, images.lastOrNull()?.id)
     }
 
     @Transactional
