@@ -38,8 +38,11 @@ class CustomUserRunningCourseRepositoryImpl(
     ) = kotlinJdslJpqlExecutor.getAll(maxCount) {
         val entity = entity(UserRunningCourse::class)
         selectDistinct(entity)
-            .from(entity, innerJoin(UserRunningCourse::course))
-            .whereAnd(
+            .from(
+                entity,
+                innerFetchJoin(UserRunningCourse::course),
+                innerFetchJoin(UserRunningCourse::user),
+            ).whereAnd(
                 customExpression(
                     String::class,
                     "SDO_NN({0}, SDO_GEOMETRY(2001, 4326, SDO_POINT_TYPE({1}, {2}, NULL), NULL, NULL), 'distance=' || {3} || ' unit=meter', 1)",
