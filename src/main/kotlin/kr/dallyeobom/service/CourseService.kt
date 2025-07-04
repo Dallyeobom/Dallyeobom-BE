@@ -7,6 +7,7 @@ import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
+import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
@@ -18,6 +19,7 @@ import kr.dallyeobom.exception.BaseException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.exception.NotCourseCreatorException
+import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseLikeHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
@@ -38,6 +40,7 @@ class CourseService(
     private val courseCreateUtil: CourseCreateUtil,
     private val courseLikeHistoryRepository: CourseLikeHistoryRepository,
     private val userRepository: UserRepository,
+    private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
 ) {
     // 관광데이터 API를 통해 경로를 가져오고, DB를 채워넣는 메소드
     // 해당 메소드는 멱등성보장이 되지 않는다. 따라서 여러번 호출하면 중복된 코스가 생성된다.
@@ -160,5 +163,18 @@ class CourseService(
             courseLikeHistoryRepository.save(CourseLikeHistory(course, user))
         }
         return CourseLikeResponse(!isAlreadyLiked, courseLikeHistoryRepository.countByCourse(course))
+    }
+
+    @Transactional(readOnly = true)
+    fun courseUserRank(
+        id: Long,
+        size: Int,
+    ): List<CourseRankResponse> {
+        val rankings =
+            courseCompletionHistoryRepository.findCourseUserRankings(
+                courseRepository.findById(id).orElseThrow { CourseNotFoundException() },
+                size,
+            )
+        return rankings.map(CourseRankResponse::from)
     }
 }

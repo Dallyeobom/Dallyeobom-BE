@@ -3,6 +3,7 @@ package kr.dallyeobom.repository
 import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
 import kr.dallyeobom.controller.common.request.SliceRequest
 import kr.dallyeobom.dto.UserRank
+import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.util.getAll
@@ -28,6 +29,11 @@ interface CustomCourseCompletionHistoryRepository {
         user: User,
         sliceRequest: SliceRequest,
     ): Slice<CourseCompletionHistory>
+
+    fun findCourseUserRankings(
+        course: Course,
+        limit: Int,
+    ): List<CourseCompletionHistory>
 }
 
 class CustomCourseCompletionHistoryRepositoryImpl(
@@ -70,4 +76,19 @@ class CustomCourseCompletionHistoryRepositoryImpl(
                 sliceRequest.lastId?.let { path(CourseCompletionHistory::id).lt(it) },
             ).orderBy(path(CourseCompletionHistory::id).desc())
     }
+
+    override fun findCourseUserRankings(
+        course: Course,
+        limit: Int,
+    ): List<CourseCompletionHistory> =
+        kotlinJdslJpqlExecutor.getAll(limit) {
+            val courseCompletionHistoryEntity = entity(CourseCompletionHistory::class)
+            select(courseCompletionHistoryEntity)
+                .from(courseCompletionHistoryEntity)
+                .where(
+                    path(CourseCompletionHistory::course).eq(course),
+                ).orderBy(
+                    path(CourseCompletionHistory::interval).asc(),
+                )
+        }
 }
