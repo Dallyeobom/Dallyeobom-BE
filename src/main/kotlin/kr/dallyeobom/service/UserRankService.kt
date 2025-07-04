@@ -20,9 +20,12 @@ class UserRankService(
     private val redissonClient: RedissonClient,
     private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
 ) {
-    private val weeklyRankSet by lazy { createRankSet(WEEKLY_RANKING_KEY) }
-    private val monthlyRankSet by lazy { createRankSet(MONTHLY_RANKING_KEY) }
-    private val yearlyRankSet by lazy { createRankSet(YEARLY_RANKING_KEY) }
+    private val rankSets: Map<UserRankType, RScoredSortedSet<UserRank>> =
+        mapOf(
+            UserRankType.WEEKLY to createRankSet(WEEKLY_RANKING_KEY),
+            UserRankType.MONTHLY to createRankSet(MONTHLY_RANKING_KEY),
+            UserRankType.YEARLY to createRankSet(YEARLY_RANKING_KEY),
+        )
 
     private fun createRankSet(key: String): RScoredSortedSet<UserRank> {
         val opts: ClientSideCachingOptions = ClientSideCachingOptions.defaults()
@@ -64,11 +67,7 @@ class UserRankService(
 
     fun getUserRanking(type: UserRankType): UserRankingResponse =
         UserRankingResponse(
-            when (type) {
-                UserRankType.WEEKLY -> weeklyRankSet
-                UserRankType.MONTHLY -> monthlyRankSet
-                UserRankType.YEARLY -> yearlyRankSet
-            }.reversed().toList(),
+            requireNotNull(rankSets[type]) { "존재하지 않는 랭킹 타입입니다($type)" }.reversed().toList(),
         )
 
     companion object {
