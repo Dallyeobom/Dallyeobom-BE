@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.constraints.Positive
 import kr.dallyeobom.config.swagger.SwaggerTag
+import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
@@ -65,6 +67,33 @@ interface CourseControllerSpec {
         @Schema(description = "상세조회 하고자 하는 코스의 ID", example = "1")
         id: Long,
     ): CourseDetailResponse
+
+    @Operation(
+        summary = "유저 들이 인증샷으로 찍어 올린 코스 이미지 목록 조회",
+        description = "코스 ID를 입력받아 해당 코스의 이미지 URL들을 조회합니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "코스 이미지 URL 목록"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 코스 ID가 양수가 아님
+        • 마지막 조회 ID가 양수가 아님
+        • 조회하고자 하는 리스트 크기가 양수가 아님
+      """,
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 코스가 존재하지 않음", content = arrayOf(Content())),
+        ],
+    )
+    fun courseImages(
+        @Positive(message = "코스 ID는 양수여야 합니다.")
+        @Schema(description = "이미지 조회하고자 하는 코스의 ID", example = "1")
+        id: Long,
+        @Validated
+        @ParameterObject
+        sliceRequest: SliceRequest,
+    ): SliceResponse<String>
 
     @Operation(
         summary = "코스 정보 수정",
