@@ -13,6 +13,7 @@ import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
+import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.validation.annotation.Validated
@@ -146,4 +147,55 @@ interface CourseControllerSpec {
         @Schema(description = "조회하고자 하는 랭킹 사이즈 - 값이 없으면 5", example = "5")
         size: Int = 5,
     ): List<CourseRankResponse>
+
+    @Operation(
+        summary = "현재 유저가 달리고 있는 코스 등록",
+        description = "현재 유저가 달리고 있는 코스를 등록합니다. 앱에서 주기적으로 이 API를 호출하여 현재 달리고 있는 코스를 등록합니다. - 30분에 한번 이상은 호출해주세요",
+        responses = [
+            ApiResponse(responseCode = "204", description = "코스 등록 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 - 코스 ID가 양수가 아님",
+                content = arrayOf(Content()),
+            ),
+        ],
+    )
+    fun reportRunningCourse(
+        userId: Long,
+        @Positive(message = "코스 ID는 양수여야 합니다.")
+        @Schema(description = "현재 유저가 달리고 있는 코스의 ID", example = "1")
+        id: Long,
+    )
+
+    @Operation(
+        summary = "주변 유저가 달리고 있는 코스 조회",
+        description = "주변 유저가 달리고 있는 코스를 조회합니다. 현재 요청받은 좌표 기준으로 주변에서 달리고 있는 유저의 코스를 반환합니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "주변 유저가 달리고 있는 코스 조회 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 위도 또는 경도가 범위를 벗어남  
+        • 검색 반경이 양수가 아님  
+        • 최대 응답 개수가 양수가 아님  
+      """,
+                content = arrayOf(Content()),
+            ),
+        ],
+    )
+    fun getNearByUserRunningCourse(
+        userId: Long,
+        @Validated
+        @ParameterObject request: NearByCourseSearchRequest,
+    ): List<NearByUserRunningCourseResponse>
+
+    @Operation(
+        summary = "현재 유저가 달리고 있는 코스 삭제",
+        description = "현재 유저가 달리고 있는 코스를 삭제합니다. 유저가 러닝을 끝내면 이 API를 호출하여 현재 달리고 있는 코스를 삭제합니다.",
+        responses = [
+            ApiResponse(responseCode = "204", description = "코스 삭제 성공"),
+        ],
+    )
+    fun deleteRunningCourse(userId: Long)
 }
