@@ -144,6 +144,6 @@ interface CourseControllerSpec {
         id: Long,
         @Positive(message = "조회 사이즈는 양수여야 합니다.")
         @Schema(description = "조회하고자 하는 랭킹 사이즈 - 값이 없으면 5", example = "5")
-        size: Int = 10,
+        size: Int = 5,
     ): List<CourseRankResponse>
 }

@@ -2,7 +2,7 @@ package kr.dallyeobom.controller.course.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.dallyeobom.controller.common.response.SimpleUserResponse
-import kr.dallyeobom.entity.CourseCompletionHistory
+import kr.dallyeobom.dto.CourseRankingInfo
 
 data class CourseRankResponse(
     val user: SimpleUserResponse,
@@ -13,10 +13,10 @@ data class CourseRankResponse(
     val interval: Long,
 ) {
     companion object {
-        fun from(courseCompletionHistory: CourseCompletionHistory): CourseRankResponse =
+        fun from(courseRankingInfo: CourseRankingInfo): CourseRankResponse =
             CourseRankResponse(
-                user = SimpleUserResponse.from(courseCompletionHistory.user),
-                interval = courseCompletionHistory.interval.toSeconds(),
+                user = SimpleUserResponse.from(courseRankingInfo.user),
+                interval = courseRankingInfo.interval.toSeconds(),
             )
     }
 }

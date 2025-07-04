@@ -170,9 +170,10 @@ class CourseService(
         id: Long,
         size: Int,
     ): List<CourseRankResponse> {
+        val course = courseRepository.findById(id).orElseThrow { CourseNotFoundException() }
         val rankings =
             courseCompletionHistoryRepository.findCourseUserRankings(
-                courseRepository.findById(id).orElseThrow { CourseNotFoundException() },
+                course,
                 size,
             )
         return rankings.map(CourseRankResponse::from)
