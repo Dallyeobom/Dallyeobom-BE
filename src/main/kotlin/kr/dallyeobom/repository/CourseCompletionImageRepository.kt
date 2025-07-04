@@ -2,6 +2,7 @@ package kr.dallyeobom.repository
 
 import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
 import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.dto.CourseImageDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCompletionImage
@@ -22,7 +23,7 @@ interface CustomCourseCompletionImageRepository {
     fun findSliceByCourse(
         course: Course,
         sliceRequest: SliceRequest,
-    ): Slice<CourseCompletionImage>
+    ): Slice<CourseImageDto>
 }
 
 class CustomCourseCompletionImageRepositoryImpl(
@@ -33,15 +34,18 @@ class CustomCourseCompletionImageRepositoryImpl(
         sliceRequest: SliceRequest,
     ) = kotlinJdslJpqlExecutor.getSlice(Pageable.ofSize(sliceRequest.size)) {
         val courseCompletionImageEntity = entity(CourseCompletionImage::class)
-        select(courseCompletionImageEntity)
-            .from(
-                courseCompletionImageEntity,
-                join(CourseCompletionImage::completion),
-            ).whereAnd(
-                path(CourseCompletionHistory::course).eq(course),
-                sliceRequest.lastId?.let { lastId -> path(CourseCompletionImage::id).lt(lastId) },
-            ).orderBy(
-                path(CourseCompletionImage::id).desc(),
-            )
+        selectNew(
+            CourseImageDto::class,
+            path(CourseCompletionImage::image),
+            path(CourseCompletionImage::id),
+        ).from(
+            courseCompletionImageEntity,
+            join(CourseCompletionImage::completion),
+        ).whereAnd(
+            path(CourseCompletionHistory::course).eq(course),
+            sliceRequest.lastId?.let { lastId -> path(CourseCompletionImage::id).lt(lastId) },
+        ).orderBy(
+            path(CourseCompletionImage::id).desc(),
+        )
     }
 }
