@@ -17,13 +17,13 @@ interface UserRankControllerSpec {
         ],
     )
     fun getUserRanking(
-        @Schema(description = "조회하고자 하는 랭킹 타입", example = "DAILY")
+        @Schema(description = "조회하고자 하는 랭킹 타입", example = "WEEKLY")
         type: UserRankType,
     ): UserRankingResponse
 }
 
 enum class UserRankType {
-    DAILY,
     WEEKLY,
     MONTHLY,
+    YEARLY,
 }
