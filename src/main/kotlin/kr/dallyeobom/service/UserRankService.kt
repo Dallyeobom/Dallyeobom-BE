@@ -65,10 +65,24 @@ class UserRankService(
         }
     }
 
-    fun getUserRanking(type: UserRankType): UserRankingResponse =
-        UserRankingResponse(
-            requireNotNull(rankSets[type]) { "존재하지 않는 랭킹 타입입니다($type)" }.reversed().toList(),
+    fun getUserRanking(
+        userId: Long,
+        type: UserRankType,
+    ): UserRankingResponse {
+        val rankSet = requireNotNull(rankSets[type]) { "존재하지 않는 랭킹 타입입니다($type)" }
+        val currentUserRank =
+            rankSet.find { it.userId == userId }?.let { userRank ->
+                UserRankingResponse.CurrentUserRank(
+                    rank = rankSet.indexOf(userRank) + 1,
+                    runningLength = userRank.runningLength,
+                    completeCourseCount = userRank.completeCourseCount,
+                )
+            }
+        return UserRankingResponse(
+            rankSet.reversed().toList(),
+            currentUserRank,
         )
+    }
 
     companion object {
         private const val RANKING_KET_PREFIX = "user:rank:zset"

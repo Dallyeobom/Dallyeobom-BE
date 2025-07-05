@@ -17,6 +17,7 @@ interface UserRankControllerSpec {
         ],
     )
     fun getUserRanking(
+        userId: Long,
         @Schema(description = "조회하고자 하는 랭킹 타입", example = "WEEKLY")
         type: UserRankType,
     ): UserRankingResponse
