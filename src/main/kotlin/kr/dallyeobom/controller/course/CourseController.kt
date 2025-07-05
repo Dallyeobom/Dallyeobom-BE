@@ -4,6 +4,7 @@ import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
+import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.service.CourseService
 import kr.dallyeobom.util.LoginUserId
@@ -64,4 +65,11 @@ class CourseController(
         userId: Long,
         @PathVariable id: Long,
     ): CourseLikeResponse = courseService.courseLikeToggle(userId, id)
+
+    @GetMapping("/{id}/rank")
+    override fun courseUserRank(
+        @PathVariable
+        id: Long,
+        size: Int,
+    ): List<CourseRankResponse> = courseService.courseUserRank(id, size)
 }
