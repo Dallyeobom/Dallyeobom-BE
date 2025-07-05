@@ -72,11 +72,13 @@ class UserRankService(
         val rankSet = requireNotNull(rankSets[type]) { "존재하지 않는 랭킹 타입입니다($type)" }
         val currentUserRank =
             rankSet.find { it.userId == userId }?.let { userRank ->
-                UserRankingResponse.CurrentUserRank(
-                    rank = rankSet.indexOf(userRank) + 1,
-                    runningLength = userRank.runningLength,
-                    completeCourseCount = userRank.completeCourseCount,
-                )
+                rankSet.revRank(userRank)?.let { rankIndex ->
+                    UserRankingResponse.CurrentUserRank(
+                        rank = rankIndex + 1,
+                        runningLength = userRank.runningLength,
+                        completeCourseCount = userRank.completeCourseCount,
+                    )
+                }
             }
         return UserRankingResponse(
             rankSet.reversed().toList(),
