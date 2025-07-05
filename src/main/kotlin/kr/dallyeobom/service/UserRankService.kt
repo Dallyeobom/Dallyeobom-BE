@@ -20,9 +20,12 @@ class UserRankService(
     private val redissonClient: RedissonClient,
     private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
 ) {
-    private val dailyRankSet by lazy { createRankSet(DAILY_RANKING_KEY) }
-    private val weeklyRankSet by lazy { createRankSet(WEEKLY_RANKING_KEY) }
-    private val monthlyRankSet by lazy { createRankSet(MONTHLY_RANKING_KEY) }
+    private val rankSets: Map<UserRankType, RScoredSortedSet<UserRank>> =
+        mapOf(
+            UserRankType.WEEKLY to createRankSet(WEEKLY_RANKING_KEY),
+            UserRankType.MONTHLY to createRankSet(MONTHLY_RANKING_KEY),
+            UserRankType.YEARLY to createRankSet(YEARLY_RANKING_KEY),
+        )
 
     private fun createRankSet(key: String): RScoredSortedSet<UserRank> {
         val opts: ClientSideCachingOptions = ClientSideCachingOptions.defaults()
@@ -36,10 +39,10 @@ class UserRankService(
         val lock: RLock = redissonClient.getLock(LOCK_NAME)
         if (lock.tryLock(3, 300, TimeUnit.SECONDS)) { // 3초 동안 락을 시도하고, 성공하면 300초 동안 유지
             try {
-                setRankData(DAILY_RANKING_KEY, LocalDate.now().minusDays(1))
                 setRankData(WEEKLY_RANKING_KEY, LocalDate.now().minusWeeks(1))
                 // minusMonths(1) 는 28일,30일,31일 이중에 어떤 수치를 가질지 달마다 달라짐 그래서 고정된 30으로 사용
                 setRankData(MONTHLY_RANKING_KEY, LocalDate.now().minusDays(30))
+                setRankData(YEARLY_RANKING_KEY, LocalDate.now().minusYears(1))
             } finally {
                 lock.unlock()
             }
@@ -62,20 +65,32 @@ class UserRankService(
         }
     }
 
-    fun getUserRanking(type: UserRankType): UserRankingResponse =
-        UserRankingResponse(
-            when (type) {
-                UserRankType.DAILY -> dailyRankSet
-                UserRankType.WEEKLY -> weeklyRankSet
-                UserRankType.MONTHLY -> monthlyRankSet
-            }.reversed().toList(),
+    fun getUserRanking(
+        userId: Long,
+        type: UserRankType,
+    ): UserRankingResponse {
+        val rankSet = requireNotNull(rankSets[type]) { "존재하지 않는 랭킹 타입입니다($type)" }
+        val currentUserRank =
+            rankSet.find { it.userId == userId }?.let { userRank ->
+                rankSet.revRank(userRank)?.let { rankIndex ->
+                    UserRankingResponse.CurrentUserRank(
+                        rank = rankIndex + 1,
+                        runningLength = userRank.runningLength,
+                        completeCourseCount = userRank.completeCourseCount,
+                    )
+                }
+            }
+        return UserRankingResponse(
+            rankSet.reversed().toList(),
+            currentUserRank,
         )
+    }
 
     companion object {
         private const val RANKING_KET_PREFIX = "user:rank:zset"
-        private const val DAILY_RANKING_KEY = "${RANKING_KET_PREFIX}:daily"
         private const val WEEKLY_RANKING_KEY = "${RANKING_KET_PREFIX}:weekly"
         private const val MONTHLY_RANKING_KEY = "${RANKING_KET_PREFIX}:monthly"
+        private const val YEARLY_RANKING_KEY = "${RANKING_KET_PREFIX}:yearly"
         private const val TMP_RANKING_KEY = "${RANKING_KET_PREFIX}:tmp"
 
         private const val LOCK_NAME = "user:rank:lock"
