@@ -89,41 +89,6 @@ interface AuthControllerSpec {
         description =
             "카카오 로그인 후 신규 유저가 닉네임을 입력해 회원가입을 진행합니다. providerAccessToken은 카카오 로그인 성공 후 받은 provider accessToken을 사용합니다." +
                 " 이용약관은 모두 포함되어야 합니다.(예시참고)",
-        requestBody =
-            io.swagger.v3.oas.annotations.parameters.RequestBody(
-                required = true,
-                content = [
-                    Content(
-                        mediaType = "application/json",
-                        schema = Schema(implementation = KakaoUserCreateRequest::class),
-                        examples = [
-                            ExampleObject(
-                                name = "회원가입 요청 예시",
-                                value = """
-                            {
-                              "nickName": "string",
-                              "providerAccessToken": "provider 토큰",
-                              "terms": [
-                                {
-                                  "termsType": "SERVICE",
-                                  "agreed": true
-                                },
-                                {
-                                  "termsType": "PRIVACY",
-                                  "agreed": true
-                                },
-                                {
-                                  "termsType": "PUSH",
-                                  "agreed": false
-                                }
-                              ]
-                            }
-                        """,
-                            ),
-                        ],
-                    ),
-                ],
-            ),
         responses = [
             ApiResponse(
                 responseCode = "200",
