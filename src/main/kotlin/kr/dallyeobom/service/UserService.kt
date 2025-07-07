@@ -3,19 +3,22 @@ package kr.dallyeobom.service
 import kr.dallyeobom.client.KakaoApiClient
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
+import kr.dallyeobom.controller.auth.request.TermsAgreeRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
 import kr.dallyeobom.entity.Provder
+import kr.dallyeobom.entity.Terms
 import kr.dallyeobom.entity.TermsAgreeHistory
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.entity.UserOauthInfo
 import kr.dallyeobom.exception.AlreadyExistNicknameException
 import kr.dallyeobom.exception.AlreadyExistedProviderUserIdException
 import kr.dallyeobom.exception.InvalidRefreshTokenException
-import kr.dallyeobom.exception.TermsAgreedPolicyException
+import kr.dallyeobom.exception.RecentTermsPolicyException
+import kr.dallyeobom.exception.RequiredTermsAgreedPolicyException
 import kr.dallyeobom.exception.TermsNotFoundException
 import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.TermsAgreeHistoryRepository
@@ -118,12 +121,10 @@ class UserService(
         val termsRequestMap = request.terms.associateBy { it.termsType }
         val termsAgreeHistories =
             termsRepository
-                .findAll()
+                .findAllByDeletedIsFalse()
                 .map { terms ->
                     val submit = termsRequestMap[terms.type] ?: throw TermsNotFoundException(terms.type)
-                    if (terms.required && !submit.agreed) {
-                        throw TermsAgreedPolicyException()
-                    }
+                    validateTermsPolicy(terms, submit)
                     TermsAgreeHistory(
                         userId = userId,
                         termsId = terms.id,
@@ -131,6 +132,18 @@ class UserService(
                     )
                 }
         termsAgreeHistoryRepository.saveAll(termsAgreeHistories)
+    }
+
+    private fun validateTermsPolicy(
+        terms: Terms,
+        submit: TermsAgreeRequest,
+    ) {
+        if ((terms.required && !submit.agreed)) {
+            throw RequiredTermsAgreedPolicyException()
+        }
+        if (submit.id != terms.id) {
+            throw RecentTermsPolicyException()
+        }
     }
 
     @Transactional(readOnly = true)
