@@ -47,4 +47,5 @@ val PERMITTED_URL_PATTERNS =
         "/api/v1/auth/user/kakao",
         "/api/v1/auth/check-nickname",
         "/api/v1/auth/terms",
+        "/api/v1/auth/terms/**",
     )
