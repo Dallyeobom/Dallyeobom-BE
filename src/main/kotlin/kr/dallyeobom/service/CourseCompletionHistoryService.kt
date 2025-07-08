@@ -195,4 +195,29 @@ class CourseCompletionHistoryService(
             imageFile,
         )
     }
+
+    @Transactional
+    fun deleteCourseCompletionHistory(
+        userId: Long,
+        id: Long,
+    ) {
+        val courseCompletionHistory =
+            courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
+
+        if (courseCompletionHistory.user.id != userId) {
+            throw NotCourseCompletionHistoryCreatorException()
+        }
+
+        val images = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
+
+        courseCompletionImageRepository.deleteAll(images)
+        courseCompletionHistoryRepository.delete(courseCompletionHistory)
+        val course = courseCompletionHistory.course
+        if (course != null && course.creatorId == userId && course.deletedDateTime == null) {
+            courseRepository.deleteById(course.id)
+        }
+        images.forEach { image ->
+            objectStorageRepository.delete(image.image)
+        }
+    }
 }
