@@ -6,6 +6,7 @@ import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.request.TermsAgreeRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
@@ -148,6 +149,13 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun checkDuplicatedNickName(nickname: String): NicknameCheckResponse = NicknameCheckResponse(userRepository.existsByNickname(nickname))
+
+    @Transactional(readOnly = true)
+    fun searchAllTerms() =
+        termsRepository
+            .findAllByDeletedIsFalse()
+            .map { TermsSearchResponse(it.id, it.type.seq, it.type, it.name, it.required) }
+            .sortedBy { it.type.seq }
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
     @Transactional(readOnly = true)
