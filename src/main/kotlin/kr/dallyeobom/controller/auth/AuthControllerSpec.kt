@@ -71,7 +71,7 @@ interface AuthControllerSpec {
                             ),
                             ExampleObject(
                                 name = "신규 회원",
-                                description = "신규 유저 - 이메일만 반환",
+                                description = "신규 유저 - 신규 유저 여부 반환",
                                 value = """{"accessToken": null,"refreshToken": null,"isNewUser": true}""",
                             ),
                         ],
@@ -86,7 +86,9 @@ interface AuthControllerSpec {
 
     @Operation(
         summary = "카카오 신규 유저 회원가입",
-        description = "카카오 로그인 후 신규 유저가 닉네임을 입력해 회원가입을 진행합니다. providerAccessToken은 카카오 로그인 성공 후 받은 provider accessToken을 사용합니다.",
+        description =
+            "카카오 로그인 후 신규 유저가 닉네임을 입력해 회원가입을 진행합니다. providerAccessToken은 카카오 로그인 성공 후 받은 provider accessToken을 사용합니다." +
+                " 이용약관은 모두 포함되어야 합니다.(예시참고)",
         responses = [
             ApiResponse(
                 responseCode = "200",
