@@ -157,6 +157,20 @@ interface AuthControllerSpec {
     )
     fun searchAllTerms(): List<TermsSearchResponse>
 
+    @Operation(
+        summary = "약관 상세 조회",
+        description = "약관 ID로 약관 상세 정보를 조회합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "해당 약관을 찾을 수 없음",
+            ),
+        ],
+    )
     fun getTermsDetail(
         @PathVariable id: Long,
     ): TermsDetailResponse

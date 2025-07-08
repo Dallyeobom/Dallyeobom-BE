@@ -161,8 +161,8 @@ class UserService(
 
     @Transactional(readOnly = true)
     fun getTermsDetail(id: Long): TermsDetailResponse {
-        val terms = termsRepository.findByIdAndDeletedIsFalse(id).orElseThrow { TermsDetailNotFoundException() }
-        return TermsDetailResponse(terms.id, terms.type, terms.name, terms.conditions, terms.revisionDate, terms.required)
+        val terms = termsRepository.findByIdAndDeletedIsFalse(id) ?: throw TermsDetailNotFoundException()
+        return TermsDetailResponse.from(terms)
     }
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")

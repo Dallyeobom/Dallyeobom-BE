@@ -1,6 +1,7 @@
 package kr.dallyeobom.controller.auth.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.dallyeobom.entity.Terms
 import kr.dallyeobom.entity.TermsTypes
 import java.time.LocalDate
 
@@ -17,4 +18,16 @@ data class TermsDetailResponse(
     val revisionDate: LocalDate,
     @Schema(description = "필수 여부", example = "true")
     val required: Boolean,
-)
+) {
+    companion object {
+        fun from(terms: Terms) =
+            TermsDetailResponse(
+                id = terms.id,
+                type = terms.type,
+                name = terms.name,
+                conditions = terms.conditions,
+                revisionDate = terms.revisionDate,
+                required = terms.required,
+            )
+    }
+}
