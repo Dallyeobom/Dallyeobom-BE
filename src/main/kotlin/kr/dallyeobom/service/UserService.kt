@@ -6,6 +6,7 @@ import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.request.TermsAgreeRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
@@ -20,6 +21,7 @@ import kr.dallyeobom.exception.AlreadyExistedProviderUserIdException
 import kr.dallyeobom.exception.InvalidRefreshTokenException
 import kr.dallyeobom.exception.RecentTermsPolicyException
 import kr.dallyeobom.exception.RequiredTermsAgreedPolicyException
+import kr.dallyeobom.exception.TermsDetailNotFoundException
 import kr.dallyeobom.exception.TermsNotFoundException
 import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.TermsAgreeHistoryRepository
@@ -156,6 +158,12 @@ class UserService(
             .findAllByDeletedIsFalse()
             .map { TermsSearchResponse(it.id, it.type.seq, it.type, it.name, it.required) }
             .sortedBy { it.type.seq }
+
+    @Transactional(readOnly = true)
+    fun getTermsDetail(id: Long): TermsDetailResponse {
+        val terms = termsRepository.findByIdAndDeletedIsFalse(id) ?: throw TermsDetailNotFoundException()
+        return TermsDetailResponse.from(terms)
+    }
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
     @Transactional(readOnly = true)

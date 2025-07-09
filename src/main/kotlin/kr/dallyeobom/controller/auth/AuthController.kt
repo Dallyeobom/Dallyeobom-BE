@@ -4,10 +4,12 @@ import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.service.UserService
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -36,6 +38,11 @@ class AuthController(
 
     @GetMapping("/terms")
     override fun searchAllTerms(): List<TermsSearchResponse> = userService.searchAllTerms()
+
+    @GetMapping("/terms/{id}")
+    override fun getTermsDetail(
+        @PathVariable id: Long,
+    ): TermsDetailResponse = userService.getTermsDetail(id)
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
     @GetMapping("/login/kakao")
