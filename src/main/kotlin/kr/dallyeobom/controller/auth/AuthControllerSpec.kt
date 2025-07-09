@@ -12,6 +12,7 @@ import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.RequestBody
@@ -127,4 +128,30 @@ interface AuthControllerSpec {
     fun createKakaoUser(
         @RequestBody @Validated kakaoUserCreateRequest: KakaoUserCreateRequest,
     ): ServiceTokensResponse
+
+    @Operation(
+        summary = "회원 가입 시 약관 리스트 조회",
+        description = "약관 리스트 조회",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "성공",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = List::class),
+                        examples = [
+                            ExampleObject(
+                                name = "성공 예시",
+                                value = """[{"id": 4,"seq": 1,"type": "SERVICE","name": "달려봄 서비스 이용약관","required": true},{"id": 2,
+                                    "seq": 2,"type": "PRIVACY","name": "개인정보 수집 및 이용동의","required": true},{"id": 3,"seq": 3,
+                                    "type": "PUSH","name": "혜택 정보 앱 푸시 알림 수신","required": false}]""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun searchAllTerms(): List<TermsSearchResponse>
 }

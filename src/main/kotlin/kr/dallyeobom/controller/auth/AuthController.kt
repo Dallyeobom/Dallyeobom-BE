@@ -4,6 +4,7 @@ import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.service.UserService
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -32,6 +33,9 @@ class AuthController(
     override fun createKakaoUser(
         @RequestBody @Validated kakaoUserCreateRequest: KakaoUserCreateRequest,
     ) = userService.createUser(kakaoUserCreateRequest)
+
+    @GetMapping("/terms")
+    override fun searchAllTerms(): List<TermsSearchResponse> = userService.searchAllTerms()
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
     @GetMapping("/login/kakao")
