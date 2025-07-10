@@ -12,8 +12,11 @@ import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.TermsDetailResponse
+import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
@@ -71,7 +74,7 @@ interface AuthControllerSpec {
                             ),
                             ExampleObject(
                                 name = "신규 회원",
-                                description = "신규 유저 - 이메일만 반환",
+                                description = "신규 유저 - 신규 유저 여부 반환",
                                 value = """{"accessToken": null,"refreshToken": null,"isNewUser": true}""",
                             ),
                         ],
@@ -86,7 +89,9 @@ interface AuthControllerSpec {
 
     @Operation(
         summary = "카카오 신규 유저 회원가입",
-        description = "카카오 로그인 후 신규 유저가 닉네임을 입력해 회원가입을 진행합니다. providerAccessToken은 카카오 로그인 성공 후 받은 provider accessToken을 사용합니다.",
+        description =
+            "카카오 로그인 후 신규 유저가 닉네임을 입력해 회원가입을 진행합니다. providerAccessToken은 카카오 로그인 성공 후 받은 provider accessToken을 사용합니다." +
+                " 이용약관은 모두 포함되어야 합니다.(예시참고)",
         responses = [
             ApiResponse(
                 responseCode = "200",
@@ -125,4 +130,48 @@ interface AuthControllerSpec {
     fun createKakaoUser(
         @RequestBody @Validated kakaoUserCreateRequest: KakaoUserCreateRequest,
     ): ServiceTokensResponse
+
+    @Operation(
+        summary = "회원 가입 시 약관 리스트 조회",
+        description = "약관 리스트 조회",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "성공",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        schema = Schema(implementation = List::class),
+                        examples = [
+                            ExampleObject(
+                                name = "성공 예시",
+                                value = """[{"id": 4,"seq": 1,"type": "SERVICE","name": "달려봄 서비스 이용약관","required": true},{"id": 2,
+                                    "seq": 2,"type": "PRIVACY","name": "개인정보 수집 및 이용동의","required": true},{"id": 3,"seq": 3,
+                                    "type": "PUSH","name": "혜택 정보 앱 푸시 알림 수신","required": false}]""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun searchAllTerms(): List<TermsSearchResponse>
+
+    @Operation(
+        summary = "약관 상세 조회",
+        description = "약관 ID로 약관 상세 정보를 조회합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "해당 약관을 찾을 수 없음",
+            ),
+        ],
+    )
+    fun getTermsDetail(
+        @PathVariable id: Long,
+    ): TermsDetailResponse
 }
