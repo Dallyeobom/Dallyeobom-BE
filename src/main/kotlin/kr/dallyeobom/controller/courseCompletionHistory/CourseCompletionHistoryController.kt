@@ -12,6 +12,7 @@ import kr.dallyeobom.service.CourseCompletionHistoryService
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -69,4 +70,12 @@ class CourseCompletionHistoryController(
         sliceRequest: SliceRequest,
     ): SliceResponse<CourseCompletionHistoryResponse> =
         courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(userId, sliceRequest)
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{id}/delete")
+    override fun deleteCourseCompletionHistory(
+        @LoginUserId
+        userId: Long,
+        @PathVariable id: Long,
+    ) = courseCompletionHistoryService.deleteCourseCompletionHistory(userId, id)
 }
