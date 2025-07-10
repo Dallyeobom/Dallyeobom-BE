@@ -60,16 +60,16 @@ class CourseController(
     ) = courseService.updateCourse(userId, id, request, courseImage)
 
     @PostMapping("/{id}/like")
-    override fun courseLikeToggle(
+    override fun toggleCourseLike(
         @LoginUserId
         userId: Long,
         @PathVariable id: Long,
-    ): CourseLikeResponse = courseService.courseLikeToggle(userId, id)
+    ): CourseLikeResponse = courseService.toggleCourseLike(userId, id)
 
     @GetMapping("/{id}/rank")
-    override fun courseUserRank(
+    override fun getCourseUserRank(
         @PathVariable
         id: Long,
         size: Int,
-    ): List<CourseRankResponse> = courseService.courseUserRank(id, size)
+    ): List<CourseRankResponse> = courseService.getCourseUserRank(id, size)
 }
