@@ -150,13 +150,13 @@ class CourseService(
     }
 
     @RedisLock(
-        prefix = "courseLikeToggle",
+        prefix = "toggleCourseLike",
         key = "#userId + ':' +#id",
         waitTime = 5,
         leaseTime = 3,
     )
     @Transactional
-    fun courseLikeToggle(
+    fun toggleCourseLike(
         userId: Long,
         id: Long,
     ): CourseLikeResponse {
@@ -170,7 +170,7 @@ class CourseService(
     }
 
     @Transactional(readOnly = true)
-    fun courseUserRank(
+    fun getCourseUserRank(
         id: Long,
         size: Int,
     ): List<CourseRankResponse> {
