@@ -2,7 +2,9 @@ package kr.dallyeobom.repository
 
 import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
 import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.dto.CourseRankingInfo
 import kr.dallyeobom.dto.UserRank
+import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.util.getAll
@@ -28,6 +30,11 @@ interface CustomCourseCompletionHistoryRepository {
         user: User,
         sliceRequest: SliceRequest,
     ): Slice<CourseCompletionHistory>
+
+    fun findCourseUserRankings(
+        course: Course,
+        limit: Int,
+    ): List<CourseRankingInfo>
 }
 
 class CustomCourseCompletionHistoryRepositoryImpl(
@@ -70,4 +77,21 @@ class CustomCourseCompletionHistoryRepositoryImpl(
                 sliceRequest.lastId?.let { path(CourseCompletionHistory::id).lt(it) },
             ).orderBy(path(CourseCompletionHistory::id).desc())
     }
+
+    override fun findCourseUserRankings(
+        course: Course,
+        limit: Int,
+    ): List<CourseRankingInfo> =
+        kotlinJdslJpqlExecutor.getAll(limit) {
+            val courseCompletionHistory = entity(CourseCompletionHistory::class)
+            selectNew<CourseRankingInfo>(
+                path(CourseCompletionHistory::user),
+                path(CourseCompletionHistory::interval),
+            ).from(courseCompletionHistory)
+                .where(path(CourseCompletionHistory::course).eq(course))
+                .orderBy(
+                    path(CourseCompletionHistory::interval).asc(),
+                    path(CourseCompletionHistory::id).asc(), // 동점자 처리: id로 정렬하여 순위를 유지
+                )
+        }
 }

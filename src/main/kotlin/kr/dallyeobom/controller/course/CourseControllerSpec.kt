@@ -13,6 +13,7 @@ import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
+import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springdoc.core.annotations.ParameterObject
@@ -143,10 +144,35 @@ interface CourseControllerSpec {
             ),
         ],
     )
-    fun courseLikeToggle(
+    fun toggleCourseLike(
         userId: Long,
         @Positive(message = "코스 ID는 양수여야 합니다.")
         @Schema(description = "좋아요 토글하고자 하는 코스의 ID", example = "1")
         id: Long,
     ): CourseLikeResponse
+
+    @Operation(
+        summary = "코스 랭킹 조회",
+        description = "코스의 랭킹을 조회합니다. 랭킹은 코스별로 유저의 기록을 기준으로 합니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "코스 랭킹 정보"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 코스 ID가 양수가 아님  
+        • 조회 사이즈가 양수가 아님
+      """,
+                content = arrayOf(Content()),
+            ),
+        ],
+    )
+    fun getCourseUserRank(
+        @Positive(message = "코스 ID는 양수여야 합니다.")
+        @Schema(description = "랭킹을 조회하고자 하는 코스의 ID", example = "1")
+        id: Long,
+        @Positive(message = "조회 사이즈는 양수여야 합니다.")
+        @Schema(description = "조회하고자 하는 랭킹 사이즈 - 값이 없으면 5", example = "5")
+        size: Int = 5,
+    ): List<CourseRankResponse>
 }

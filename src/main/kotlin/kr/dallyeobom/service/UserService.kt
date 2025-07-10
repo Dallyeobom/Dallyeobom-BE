@@ -3,18 +3,29 @@ package kr.dallyeobom.service
 import kr.dallyeobom.client.KakaoApiClient
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
+import kr.dallyeobom.controller.auth.request.TermsAgreeRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.TermsDetailResponse
+import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
 import kr.dallyeobom.entity.Provder
+import kr.dallyeobom.entity.Terms
+import kr.dallyeobom.entity.TermsAgreeHistory
 import kr.dallyeobom.entity.User
 import kr.dallyeobom.entity.UserOauthInfo
 import kr.dallyeobom.exception.AlreadyExistNicknameException
 import kr.dallyeobom.exception.AlreadyExistedProviderUserIdException
 import kr.dallyeobom.exception.InvalidRefreshTokenException
+import kr.dallyeobom.exception.RecentTermsPolicyException
+import kr.dallyeobom.exception.RequiredTermsAgreedPolicyException
+import kr.dallyeobom.exception.TermsDetailNotFoundException
+import kr.dallyeobom.exception.TermsNotFoundException
 import kr.dallyeobom.exception.UserNotFoundException
+import kr.dallyeobom.repository.TermsAgreeHistoryRepository
+import kr.dallyeobom.repository.TermsRepository
 import kr.dallyeobom.repository.UserOauthInfoRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.jwt.JwtUtil
@@ -26,6 +37,8 @@ class UserService(
     private val userRepository: UserRepository,
     private val kakaoApiClient: KakaoApiClient,
     private val userOauthInfoRepository: UserOauthInfoRepository,
+    private val termsRepository: TermsRepository,
+    private val termsAgreeHistoryRepository: TermsAgreeHistoryRepository,
     private val jwtUtil: JwtUtil,
 ) {
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
@@ -99,11 +112,58 @@ class UserService(
                 ),
             )
         userOauthInfoRepository.save(UserOauthInfo.createKakaoOauthInfo(user, providerUserId))
+        validateAndSaveTermsAgreements(request, user.id)
+
         return makeTokens(user)
+    }
+
+    private fun validateAndSaveTermsAgreements(
+        request: KakaoUserCreateRequest,
+        userId: Long,
+    ) {
+        val termsRequestMap = request.terms.associateBy { it.termsType }
+        val termsAgreeHistories =
+            termsRepository
+                .findAllByDeletedIsFalse()
+                .map { terms ->
+                    val submit = termsRequestMap[terms.type] ?: throw TermsNotFoundException(terms.type)
+                    validateTermsPolicy(terms, submit)
+                    TermsAgreeHistory(
+                        userId = userId,
+                        termsId = terms.id,
+                        agreed = submit.agreed,
+                    )
+                }
+        termsAgreeHistoryRepository.saveAll(termsAgreeHistories)
+    }
+
+    private fun validateTermsPolicy(
+        terms: Terms,
+        submit: TermsAgreeRequest,
+    ) {
+        if ((terms.required && !submit.agreed)) {
+            throw RequiredTermsAgreedPolicyException()
+        }
+        if (submit.id != terms.id) {
+            throw RecentTermsPolicyException()
+        }
     }
 
     @Transactional(readOnly = true)
     fun checkDuplicatedNickName(nickname: String): NicknameCheckResponse = NicknameCheckResponse(userRepository.existsByNickname(nickname))
+
+    @Transactional(readOnly = true)
+    fun searchAllTerms() =
+        termsRepository
+            .findAllByDeletedIsFalse()
+            .map { TermsSearchResponse(it.id, it.type.seq, it.type, it.name, it.required) }
+            .sortedBy { it.type.seq }
+
+    @Transactional(readOnly = true)
+    fun getTermsDetail(id: Long): TermsDetailResponse {
+        val terms = termsRepository.findByIdAndDeletedIsFalse(id) ?: throw TermsDetailNotFoundException()
+        return TermsDetailResponse.from(terms)
+    }
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
     @Transactional(readOnly = true)
