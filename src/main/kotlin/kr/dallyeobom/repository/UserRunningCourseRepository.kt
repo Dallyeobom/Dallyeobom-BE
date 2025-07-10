@@ -11,7 +11,7 @@ import java.time.LocalDateTime
 interface UserRunningCourseRepository :
     JpaRepository<UserRunningCourse, Long>,
     CustomUserRunningCourseRepository {
-    fun findByUser(user: User): List<UserRunningCourse>
+    fun findByUser(user: User): UserRunningCourse?
 
     fun deleteByUserId(userId: Long): Int
 }

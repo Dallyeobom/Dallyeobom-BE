@@ -183,6 +183,12 @@ class CourseService(
         return rankings.map(CourseRankResponse::from)
     }
 
+    @RedisLock(
+        prefix = "reportRunningCourse",
+        key = "#userId",
+        waitTime = 5,
+        leaseTime = 3,
+    ) // 한 유저에 대해 동시에 하나의 요청만 처리하도록 락을 건다
     @Transactional
     fun reportRunningCourse(
         userId: Long,
@@ -190,9 +196,9 @@ class CourseService(
     ) {
         val course = courseRepository.findById(id).getOrNull()?.takeIf { it.deletedDateTime == null } ?: throw CourseNotFoundException()
         val user = userRepository.findById(userId).get()
-        val prevRunningCourses = userRunningCourseRepository.findByUser(user) // 아마 항상 1개만 있겠지만 혹시나 몰라 리스트로 받는다
+        val runningCourse = userRunningCourseRepository.findByUser(user)
         var isRefreshed = false
-        for (runningCourse in prevRunningCourses) {
+        if (runningCourse != null) {
             if (runningCourse.course.id == id) {
                 // 현재 유저가 달리고 있는 코스가 이미 등록되어 있다면, 해당 코스를 수정시간을 갱신한다
                 runningCourse.refreshModifiedDateTime()
@@ -204,9 +210,7 @@ class CourseService(
         }
         if (!isRefreshed) {
             // 현재 유저가 달리고 있는 코스가 등록되어 있지 않다면, 새로 등록한다
-            userRunningCourseRepository.save(
-                UserRunningCourse(course, user),
-            )
+            userRunningCourseRepository.save(UserRunningCourse(course, user))
         }
     }
 
