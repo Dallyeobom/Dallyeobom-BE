@@ -1,5 +1,7 @@
 package kr.dallyeobom.controller.course
 
+import kr.dallyeobom.controller.common.request.SliceRequest
+import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
@@ -47,6 +49,13 @@ class CourseController(
         @PathVariable
         id: Long,
     ): CourseDetailResponse = courseService.getCourseDetail(userId, id)
+
+    @GetMapping("/{id}/images")
+    override fun getCourseImages(
+        @PathVariable
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<String> = courseService.getCourseImages(id, sliceRequest)
 
     @ResponseStatus(NO_CONTENT)
     @PatchMapping("/{id}", consumes = [MULTIPART_FORM_DATA_VALUE])

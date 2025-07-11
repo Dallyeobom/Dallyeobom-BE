@@ -114,6 +114,16 @@ interface CourseCompletionHistoryControllerSpec {
         description = "특정 유저의 코스 완주 기록 리스트를 조회합니다. 서버 조회 성능을 위해 무한스크롤 방식으로 구현되었습니다.",
         responses = [
             ApiResponse(responseCode = "200", description = "코스 완주 기록 정보 리스트"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 조회하고자 하는 유저 ID가 양수가 아님
+        • 마지막 조회 ID가 양수가 아님
+        • 조회하고자 하는 리스트 크기가 양수가 아님
+      """,
+                content = arrayOf(Content()),
+            ),
             ApiResponse(responseCode = "404", description = "ID에 해당하는 유저가 존재하지 않음", content = arrayOf(Content())),
         ],
     )
