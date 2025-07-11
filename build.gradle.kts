@@ -93,6 +93,9 @@ dependencies {
     // Map
     implementation("com.google.maps:google-maps-services:2.2.0")
 
+    // Firebase
+    implementation("com.google.firebase:firebase-admin:9.5.0")
+
     // Testing
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
