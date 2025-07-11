@@ -88,7 +88,7 @@ interface CourseControllerSpec {
             ApiResponse(responseCode = "404", description = "ID에 해당하는 코스가 존재하지 않음", content = arrayOf(Content())),
         ],
     )
-    fun courseImages(
+    fun getCourseImages(
         @Positive(message = "코스 ID는 양수여야 합니다.")
         @Schema(description = "이미지 조회하고자 하는 코스의 ID", example = "1")
         id: Long,

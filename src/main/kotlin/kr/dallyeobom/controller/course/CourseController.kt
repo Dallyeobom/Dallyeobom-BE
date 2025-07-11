@@ -51,7 +51,7 @@ class CourseController(
     ): CourseDetailResponse = courseService.getCourseDetail(userId, id)
 
     @GetMapping("/{id}/images")
-    override fun courseImages(
+    override fun getCourseImages(
         @PathVariable
         id: Long,
         sliceRequest: SliceRequest,
