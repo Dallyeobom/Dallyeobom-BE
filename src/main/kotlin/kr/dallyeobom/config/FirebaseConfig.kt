@@ -16,15 +16,14 @@ class FirebaseConfig(
     fun init() {
         if (FirebaseApp.getApps().isNotEmpty()) return
 
-        val credentials =
-            ByteArrayInputStream(firebaseProperties.firebaseServiceAccountJson.toByteArray())
+        ByteArrayInputStream(firebaseProperties.firebaseServiceAccountJson.toByteArray()).use { credentials ->
+            val options =
+                FirebaseOptions
+                    .builder()
+                    .setCredentials(GoogleCredentials.fromStream(credentials))
+                    .build()
 
-        val options =
-            FirebaseOptions
-                .builder()
-                .setCredentials(GoogleCredentials.fromStream(credentials))
-                .build()
-
-        FirebaseApp.initializeApp(options)
+            FirebaseApp.initializeApp(options)
+        }
     }
 }
