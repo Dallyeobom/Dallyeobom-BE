@@ -9,12 +9,14 @@ import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
+import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseLevel
 import kr.dallyeobom.entity.CourseLikeHistory
 import kr.dallyeobom.entity.CourseVisibility
+import kr.dallyeobom.entity.UserRunningCourse
 import kr.dallyeobom.exception.BaseException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
@@ -24,6 +26,7 @@ import kr.dallyeobom.repository.CourseLikeHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.UserRepository
+import kr.dallyeobom.repository.UserRunningCourseRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.lock.RedisLock
 import org.springframework.stereotype.Service
@@ -41,6 +44,7 @@ class CourseService(
     private val courseLikeHistoryRepository: CourseLikeHistoryRepository,
     private val userRepository: UserRepository,
     private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
+    private val userRunningCourseRepository: UserRunningCourseRepository,
 ) {
     // 관광데이터 API를 통해 경로를 가져오고, DB를 채워넣는 메소드
     // 해당 메소드는 멱등성보장이 되지 않는다. 따라서 여러번 호출하면 중복된 코스가 생성된다.
@@ -177,5 +181,63 @@ class CourseService(
                 size,
             )
         return rankings.map(CourseRankResponse::from)
+    }
+
+    @RedisLock(
+        prefix = "reportRunningCourse",
+        key = "#userId",
+        waitTime = 5,
+        leaseTime = 3,
+    ) // 한 유저에 대해 동시에 하나의 요청만 처리하도록 락을 건다
+    @Transactional
+    fun reportRunningCourse(
+        userId: Long,
+        id: Long,
+    ) {
+        val course = courseRepository.findById(id).getOrNull()?.takeIf { it.deletedDateTime == null } ?: throw CourseNotFoundException()
+        val user = userRepository.findById(userId).get()
+        val runningCourse = userRunningCourseRepository.findByUser(user)
+        var isRefreshed = false
+        if (runningCourse != null) {
+            if (runningCourse.course.id == id) {
+                // 현재 유저가 달리고 있는 코스가 이미 등록되어 있다면, 해당 코스를 수정시간을 갱신한다
+                runningCourse.refreshModifiedDateTime()
+                isRefreshed = true
+            } else {
+                // 현재 유저가 달리고 있는 코스가 다른 코스라면, 해당 코스를 삭제한다
+                userRunningCourseRepository.delete(runningCourse)
+            }
+        }
+        if (!isRefreshed) {
+            // 현재 유저가 달리고 있는 코스가 등록되어 있지 않다면, 새로 등록한다
+            userRunningCourseRepository.save(UserRunningCourse(course, user))
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun getNearByUserRunningCourse(
+        userId: Long,
+        request: NearByCourseSearchRequest,
+    ): List<NearByUserRunningCourseResponse> {
+        val user = userRepository.findById(userId).get()
+        val userRunningCourses =
+            userRunningCourseRepository.getNearByUserRunningCourse(
+                user,
+                request.longitude,
+                request.latitude,
+                request.radius,
+                request.maxCount,
+            )
+        return userRunningCourses.map {
+            NearByUserRunningCourseResponse.from(
+                it,
+                it.course.image?.let { image -> objectStorageRepository.getDownloadUrl(image) },
+            )
+        }
+    }
+
+    @Transactional
+    fun deleteRunningCourse(userId: Long) {
+        userRunningCourseRepository.deleteByUserId(userId)
     }
 }
