@@ -8,11 +8,13 @@ import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
+import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.service.CourseService
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.HttpStatus.CREATED
 import org.springframework.http.HttpStatus.NO_CONTENT
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -81,4 +83,25 @@ class CourseController(
         id: Long,
         size: Int,
     ): List<CourseRankResponse> = courseService.getCourseUserRank(id, size)
+
+    @PostMapping("/{id}/running")
+    override fun reportRunningCourse(
+        @LoginUserId
+        userId: Long,
+        @PathVariable
+        id: Long,
+    ) = courseService.reportRunningCourse(userId, id)
+
+    @GetMapping("/nearby/running")
+    override fun getNearByUserRunningCourse(
+        @LoginUserId
+        userId: Long,
+        request: NearByCourseSearchRequest,
+    ): List<NearByUserRunningCourseResponse> = courseService.getNearByUserRunningCourse(userId, request)
+
+    @ResponseStatus(NO_CONTENT)
+    @DeleteMapping("/running")
+    override fun deleteRunningCourse(
+        @LoginUserId userId: Long,
+    ) = courseService.deleteRunningCourse(userId)
 }
