@@ -6,7 +6,9 @@ import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
+import kr.dallyeobom.controller.auth.response.UserInfoResponse
 import kr.dallyeobom.service.UserService
+import kr.dallyeobom.util.LoginUserId
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -35,6 +37,11 @@ class AuthController(
     override fun createKakaoUser(
         @RequestBody @Validated kakaoUserCreateRequest: KakaoUserCreateRequest,
     ) = userService.createUser(kakaoUserCreateRequest)
+
+    @GetMapping("/user")
+    override fun getUserInfo(
+        @LoginUserId userId: Long,
+    ): UserInfoResponse = userService.getUserInfo(userId)
 
     @GetMapping("/terms")
     override fun searchAllTerms(): List<TermsSearchResponse> = userService.searchAllTerms()
