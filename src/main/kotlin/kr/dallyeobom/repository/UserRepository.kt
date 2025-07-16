@@ -7,7 +7,7 @@ interface UserRepository : JpaRepository<User, Long> {
     fun existsByNickname(nickName: String): Boolean
 
     fun existsByNicknameAndIdNot(
-        nickName: String,
+        nickname: String,
         userId: Long,
     ): Boolean
 }
