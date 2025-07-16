@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Positive
 import kr.dallyeobom.controller.common.request.SliceRequest
 import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionUpdateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -72,10 +74,20 @@ class CourseCompletionHistoryController(
         courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(userId, sliceRequest)
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @DeleteMapping("/{id}/delete")
+    @DeleteMapping("/{id}")
     override fun deleteCourseCompletionHistory(
         @LoginUserId
         userId: Long,
         @PathVariable id: Long,
     ) = courseCompletionHistoryService.deleteCourseCompletionHistory(userId, id)
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/{id}", consumes = [MULTIPART_FORM_DATA_VALUE])
+    override fun updateCourseCompletionHistory(
+        @LoginUserId
+        userId: Long,
+        @PathVariable id: Long,
+        @RequestPart request: CourseCompletionUpdateRequest,
+        @RequestPart(required = false) completionImages: List<MultipartFile>?,
+    ) = courseCompletionHistoryService.updateCourseCompletionHistory(userId, id, request, completionImages)
 }

@@ -4,6 +4,7 @@ import com.google.maps.model.LatLng
 import kr.dallyeobom.controller.common.request.SliceRequest
 import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionUpdateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
@@ -16,7 +17,9 @@ import kr.dallyeobom.entity.CourseCreatorType
 import kr.dallyeobom.entity.CourseVisibility
 import kr.dallyeobom.exception.AlreadyCreatedCourseException
 import kr.dallyeobom.exception.CourseCompletionHistoryNotFoundException
+import kr.dallyeobom.exception.CourseCompletionImageNotFoundException
 import kr.dallyeobom.exception.CourseNotFoundException
+import kr.dallyeobom.exception.InvalidCourseCompletionImageCountException
 import kr.dallyeobom.exception.NotCourseCompletionHistoryCreatorException
 import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
@@ -26,6 +29,7 @@ import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.CourseLengthUtil
+import kr.dallyeobom.util.lock.RedisLock
 import kr.dallyeobom.util.requireNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -63,14 +67,9 @@ class CourseCompletionHistoryService(
                     ),
                 )
 
-        courseCompletionImageRepository.saveAll(
-            completionImages.map { courseCompletionImage ->
-                CourseCompletionImage(
-                    user = user,
-                    completion = courseCompletionHistory,
-                    image = saveImage(ObjectStorageRepository.COMPLETION_IMAGE_PATH, courseCompletionImage),
-                )
-            },
+        saveCompletionImages(
+            courseCompletionHistory,
+            completionImages,
         )
 
         return CourseCompletionCreateResponse.from(courseCompletionHistory)
@@ -115,9 +114,15 @@ class CourseCompletionHistoryService(
         val courseCompletionHistory =
             courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
         val completionImages = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
-        val imageUrl = completionImages.map { image -> objectStorageRepository.getDownloadUrl(image.image) }
+        val images =
+            completionImages.map { image ->
+                CourseCompletionHistoryDetailResponse.CourseCompletionImageResponse(
+                    image.id,
+                    objectStorageRepository.getDownloadUrl(image.image),
+                )
+            }
 
-        return CourseCompletionHistoryDetailResponse.from(userId, courseCompletionHistory, imageUrl)
+        return CourseCompletionHistoryDetailResponse.from(userId, courseCompletionHistory, images)
     }
 
     @Transactional(readOnly = true)
@@ -219,5 +224,70 @@ class CourseCompletionHistoryService(
         images.forEach { image ->
             objectStorageRepository.delete(image.image)
         }
+    }
+
+    @RedisLock(
+        prefix = "updateCourseCompletionHistory",
+        key = "#id",
+        waitTime = 10,
+        leaseTime = 8,
+    )
+    @Transactional
+    fun updateCourseCompletionHistory(
+        userId: Long,
+        id: Long,
+        request: CourseCompletionUpdateRequest,
+        completionImages: List<MultipartFile>?,
+    ) {
+        val courseCompletionHistory =
+            courseCompletionHistoryRepository.findById(id).orElseThrow { CourseCompletionHistoryNotFoundException() }
+
+        if (courseCompletionHistory.user.id != userId) {
+            throw NotCourseCompletionHistoryCreatorException()
+        }
+
+        val existingImages = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
+        val imageCount = existingImages.size + (completionImages?.size ?: 0) - (request.deleteImageIds?.size ?: 0)
+        if (imageCount > 3) {
+            throw InvalidCourseCompletionImageCountException("인증샷은 최대 3개까지 업로드할 수 있습니다.")
+        } else if (imageCount == 0) {
+            throw InvalidCourseCompletionImageCountException("인증샷은 최소 1개 이상이어야 합니다.")
+        }
+        request.review?.let { courseCompletionHistory.review = it }
+
+        if (completionImages != null) {
+            saveCompletionImages(courseCompletionHistory, completionImages)
+        }
+
+        if (!request.deleteImageIds.isNullOrEmpty()) {
+            request.deleteImageIds.forEach { imageId ->
+                val image =
+                    existingImages.find { it.id == imageId }
+                        ?: throw CourseCompletionImageNotFoundException(imageId)
+                courseCompletionImageRepository.delete(image)
+            }
+            // ObjectStorage에서 이미지 삭제를 했는데 불의의 사태로 트랜잭션이 롤백되면 ObjectStorage와 DB간 불일치가 발생할 수 있다
+            // 따라서, 트랜잭션이 롤백될 위험이 없을때 이미지를 삭제하기 위해 별도의 반복문으로 분리한다
+            request.deleteImageIds.forEach { imageId ->
+                val image =
+                    existingImages.find { it.id == imageId }!! // 이미 존재하는 이미지이므로 null이 아님
+                objectStorageRepository.delete(image.image)
+            }
+        }
+    }
+
+    private fun saveCompletionImages(
+        courseCompletionHistory: CourseCompletionHistory,
+        completionImages: List<MultipartFile>,
+    ) {
+        courseCompletionImageRepository.saveAll(
+            completionImages.map { completionImage ->
+                CourseCompletionImage(
+                    user = courseCompletionHistory.user,
+                    completion = courseCompletionHistory,
+                    image = saveImage(ObjectStorageRepository.COMPLETION_IMAGE_PATH, completionImage),
+                )
+            },
+        )
     }
 }
