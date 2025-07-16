@@ -3,6 +3,7 @@ package kr.dallyeobom.service
 import kr.dallyeobom.client.KakaoApiClient
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
+import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
 import kr.dallyeobom.controller.auth.request.TermsAgreeRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
@@ -171,6 +172,18 @@ class UserService(
     fun getUserInfo(userId: Long): UserInfoResponse {
         val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
         return UserInfoResponse(user.nickname, user.profileImage)
+    }
+
+    @Transactional
+    fun updateNickname(
+        nicknameUpdateRequest: NicknameUpdateRequest,
+        userId: Long,
+    ) {
+        if (userRepository.existsByNicknameAndIdNot(nicknameUpdateRequest.nickname, userId)) {
+            throw AlreadyExistNicknameException()
+        }
+        val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
+        user.updateNickname(nicknameUpdateRequest.nickname)
     }
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")

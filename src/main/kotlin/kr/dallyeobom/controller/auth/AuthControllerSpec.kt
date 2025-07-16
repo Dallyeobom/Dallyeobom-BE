@@ -10,6 +10,7 @@ import jakarta.validation.constraints.Size
 import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
+import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
@@ -146,6 +147,36 @@ interface AuthControllerSpec {
     fun getUserInfo(
         @LoginUserId userId: Long,
     ): UserInfoResponse
+
+    @Operation(
+        summary = "닉네임 변경",
+        description = "닉네임을 변경합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "닉네임 변경 성공",
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "중복된 닉네임 존재",
+                content = [
+                    Content(
+                        mediaType = "application/json",
+                        examples = [
+                            ExampleObject(
+                                name = "실패 예시(닉네임 중복)",
+                                value = """{"code": 40900,"errorMessage": "이미 존재하는 닉네임입니다."}""",
+                            ),
+                        ],
+                    ),
+                ],
+            ),
+        ],
+    )
+    fun updateNickname(
+        @RequestBody nicknameUpdateRequest: NicknameUpdateRequest,
+        @LoginUserId userId: Long,
+    )
 
     @Operation(
         summary = "회원 가입 시 약관 리스트 조회",
