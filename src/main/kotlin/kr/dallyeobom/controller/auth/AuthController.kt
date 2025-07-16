@@ -47,7 +47,7 @@ class AuthController(
 
     @PutMapping("/user/nickname")
     override fun updateNickname(
-        @RequestBody nicknameUpdateRequest: NicknameUpdateRequest,
+        @RequestBody @Validated nicknameUpdateRequest: NicknameUpdateRequest,
         userId: Long,
     ) = userService.updateNickname(nicknameUpdateRequest, userId)
 

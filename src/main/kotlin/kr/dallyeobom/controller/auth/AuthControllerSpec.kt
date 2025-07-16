@@ -174,7 +174,7 @@ interface AuthControllerSpec {
         ],
     )
     fun updateNickname(
-        @RequestBody nicknameUpdateRequest: NicknameUpdateRequest,
+        @RequestBody @Validated nicknameUpdateRequest: NicknameUpdateRequest,
         @LoginUserId userId: Long,
     )
 
