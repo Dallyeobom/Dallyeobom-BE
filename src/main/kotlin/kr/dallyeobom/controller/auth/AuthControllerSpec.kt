@@ -14,7 +14,9 @@ import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
+import kr.dallyeobom.controller.auth.response.UserInfoResponse
 import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
+import kr.dallyeobom.util.LoginUserId
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -130,6 +132,20 @@ interface AuthControllerSpec {
     fun createKakaoUser(
         @RequestBody @Validated kakaoUserCreateRequest: KakaoUserCreateRequest,
     ): ServiceTokensResponse
+
+    @Operation(
+        summary = "유저 정보를 조회",
+        description = "유저 정보를 조회합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "닉네임과 프로필 정보",
+            ),
+        ],
+    )
+    fun getUserInfo(
+        @LoginUserId userId: Long,
+    ): UserInfoResponse
 
     @Operation(
         summary = "회원 가입 시 약관 리스트 조회",

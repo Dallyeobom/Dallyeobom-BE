@@ -16,8 +16,17 @@ class User(
     val nickname: String,
     @Column(length = 30, nullable = false, updatable = false, unique = true)
     val email: String,
+    @Column(updatable = true)
+    val profileImage: String?,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     val id: Long = 0L,
-) : BaseModifiableEntity()
+) : BaseModifiableEntity() {
+    companion object {
+        fun createUser(
+            nickname: String,
+            email: String,
+        ): User = User(nickname, email, null)
+    }
+}
