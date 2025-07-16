@@ -2,6 +2,7 @@ package kr.dallyeobom.controller.auth
 
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
+import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
@@ -13,6 +14,7 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -42,6 +44,12 @@ class AuthController(
     override fun getUserInfo(
         @LoginUserId userId: Long,
     ): UserInfoResponse = userService.getUserInfo(userId)
+
+    @PutMapping("/user/nickname")
+    override fun updateNickname(
+        @RequestBody @Validated nicknameUpdateRequest: NicknameUpdateRequest,
+        @LoginUserId userId: Long,
+    ) = userService.updateNickname(nicknameUpdateRequest, userId)
 
     @GetMapping("/terms")
     override fun searchAllTerms(): List<TermsSearchResponse> = userService.searchAllTerms()
