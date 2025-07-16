@@ -1,8 +1,7 @@
 package kr.dallyeobom.exception
 
-class InvalidCourseCompletionImageCountException(
-    message: String,
-) : BaseException(
+class InvalidCourseCompletionImageCountException :
+    BaseException(
         ErrorCode.INVALID_COURSE_COMPLETION_IMAGE_COUNT,
-        message,
+        ErrorCode.INVALID_COURSE_COMPLETION_IMAGE_COUNT.errorMessage,
     )

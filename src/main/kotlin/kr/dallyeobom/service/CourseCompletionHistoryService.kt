@@ -248,10 +248,8 @@ class CourseCompletionHistoryService(
 
         val existingImages = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
         val imageCount = existingImages.size + (completionImages?.size ?: 0) - (request.deleteImageIds?.size ?: 0)
-        if (imageCount > 3) {
-            throw InvalidCourseCompletionImageCountException("인증샷은 최대 3개까지 업로드할 수 있습니다.")
-        } else if (imageCount == 0) {
-            throw InvalidCourseCompletionImageCountException("인증샷은 최소 1개 이상이어야 합니다.")
+        if (imageCount !in 1..3) {
+            throw InvalidCourseCompletionImageCountException()
         }
         request.review?.let { courseCompletionHistory.review = it }
 
@@ -260,17 +258,18 @@ class CourseCompletionHistoryService(
         }
 
         if (!request.deleteImageIds.isNullOrEmpty()) {
-            request.deleteImageIds.forEach { imageId ->
-                val image =
-                    existingImages.find { it.id == imageId }
-                        ?: throw CourseCompletionImageNotFoundException(imageId)
-                courseCompletionImageRepository.delete(image)
+            val idsToDelete = request.deleteImageIds
+            val imagesToDelete = existingImages.filter { it.id in idsToDelete }
+
+            if (imagesToDelete.size != idsToDelete.size) {
+                val foundIds = imagesToDelete.map { it.id }.toSet()
+                val notFoundId = idsToDelete.first { it !in foundIds }
+                throw CourseCompletionImageNotFoundException(notFoundId)
             }
+            courseCompletionImageRepository.deleteAll(imagesToDelete)
             // ObjectStorage에서 이미지 삭제를 했는데 불의의 사태로 트랜잭션이 롤백되면 ObjectStorage와 DB간 불일치가 발생할 수 있다
             // 따라서, 트랜잭션이 롤백될 위험이 없을때 이미지를 삭제하기 위해 별도의 반복문으로 분리한다
-            request.deleteImageIds.forEach { imageId ->
-                val image =
-                    existingImages.find { it.id == imageId }!! // 이미 존재하는 이미지이므로 null이 아님
+            imagesToDelete.forEach { image ->
                 objectStorageRepository.delete(image.image)
             }
         }
