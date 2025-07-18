@@ -1,7 +1,6 @@
 package kr.dallyeobom.controller.temporalAuth
 
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
-import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
 import kr.dallyeobom.service.UserService
 import org.springframework.http.HttpStatus.CREATED
@@ -33,9 +32,4 @@ class TemporalAuthController(
     override fun temporalLogin(
         @RequestParam("userId") userId: Long,
     ) = userService.temporalLogin(userId)
-
-    @GetMapping("/refresh")
-    override fun refresh(
-        @RequestParam("token") refreshToken: String,
-    ): ServiceTokensResponse = userService.refreshTokens(refreshToken)
 }
