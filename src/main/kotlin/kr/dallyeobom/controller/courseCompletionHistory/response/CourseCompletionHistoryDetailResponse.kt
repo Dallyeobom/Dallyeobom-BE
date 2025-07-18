@@ -14,7 +14,7 @@ class CourseCompletionHistoryDetailResponse(
     @Schema(description = "유저 ID", example = "1")
     val userId: Long,
     @Schema(description = "코스 리뷰", example = "이 코스는 정말 좋았습니다! 다음에도 또 달리고 싶어요.")
-    var review: String,
+    val review: String,
     @Schema(description = "소요시간 (초 단위)", example = "3600")
     val interval: Long,
     @Schema(
@@ -22,14 +22,14 @@ class CourseCompletionHistoryDetailResponse(
         example = "[{\"latitude\": 37.5665, \"longitude\": 126.978}, {\"latitude\": 37.567, \"longitude\": 126.979}]",
     )
     val path: List<LatLngDto>,
-    @Schema(description = "코스 완주 인증샷들", example = "[\"https://example.com/image.jpg\"]")
-    val completionImages: List<String>,
+    @Schema(description = "코스 완주 인증샷들", example = "[{\"id\":1, \"imageUrl\":\"https://example.com/image.jpg\"}]")
+    val completionImages: List<CourseCompletionImageResponse>,
 ) {
     companion object {
         fun from(
             userId: Long,
             courseCompletionHistory: CourseCompletionHistory,
-            imageUrls: List<String>,
+            imageUrls: List<CourseCompletionImageResponse>,
         ): CourseCompletionHistoryDetailResponse =
             CourseCompletionHistoryDetailResponse(
                 id = courseCompletionHistory.id,
@@ -42,4 +42,11 @@ class CourseCompletionHistoryDetailResponse(
                 completionImages = imageUrls,
             )
     }
+
+    data class CourseCompletionImageResponse(
+        @Schema(description = "완주 인증샷 ID", example = "1")
+        val id: Long,
+        @Schema(description = "완주 인증샷 URL", example = "https://example.com/image.jpg")
+        val imageUrl: String,
+    )
 }
