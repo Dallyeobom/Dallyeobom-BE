@@ -2,11 +2,12 @@ package kr.dallyeobom.controller.auth
 
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
+import kr.dallyeobom.controller.auth.request.RefreshAccessTokenRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
-import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.service.UserService
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -51,8 +52,8 @@ class AuthController(
         @RequestParam code: String,
     ) = userService.getProviderAccessToken(code)
 
-    @GetMapping("/refresh")
+    @PostMapping("/refresh")
     override fun refreshAccessToken(
-        @RequestParam("token") refreshToken: String,
-    ): ServiceTokensResponse = userService.refreshTokens(refreshToken)
+        @RequestBody request: RefreshAccessTokenRequest,
+    ): ServiceTokensResponse = userService.refreshTokens(request)
 }

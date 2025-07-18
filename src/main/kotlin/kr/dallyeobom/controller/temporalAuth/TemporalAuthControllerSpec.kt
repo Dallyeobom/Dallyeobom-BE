@@ -5,8 +5,8 @@ import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dallyeobom.config.swagger.SwaggerTag
+import kr.dallyeobom.controller.auth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
-import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
 
 @Tag(name = SwaggerTag.TEMPORAL_AUTH)
