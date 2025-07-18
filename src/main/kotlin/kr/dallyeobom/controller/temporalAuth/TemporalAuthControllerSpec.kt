@@ -44,20 +44,4 @@ interface TemporalAuthControllerSpec {
         ],
     )
     fun temporalLogin(userId: Long): ServiceTokensResponse
-
-    @Operation(
-        summary = "리프레시 토큰으로 엑세스 토큰 재발급",
-        description = "리프레시 토큰으로 엑세스 토큰을 재발급합니다.",
-        parameters = [
-            Parameter(
-                name = "token",
-                description = "리프레시 토큰",
-                required = true,
-            ),
-        ],
-        responses = [
-            ApiResponse(responseCode = "200", description = "엑세스 토큰 재발급 성공"),
-        ],
-    )
-    fun refresh(refreshToken: String): ServiceTokensResponse
 }
