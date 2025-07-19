@@ -48,7 +48,7 @@ class RedisLockAspect(
         val parser: ExpressionParser = SpelExpressionParser()
         val dynamicKey: String =
             // annotation에서 nullable한 파라메터를 만들수 없고 parseExpression은 빈 문자열이 들어오면 에러를 반환하기 때문에 키로 사용할 값이 없다면 빈문자열을 사용하도록 함
-            (if (redisLock.key.isNotBlank()) parser.parseExpression(redisLock.key).getValue(context, String::class.java) else null) ?: ""
+            (redisLock.key.takeIf { it.isNotBlank() }?.let { parser.parseExpression(it).getValue(context, String::class.java) } ?: "")
         return redisLock.prefix + ":" + dynamicKey
     }
 }

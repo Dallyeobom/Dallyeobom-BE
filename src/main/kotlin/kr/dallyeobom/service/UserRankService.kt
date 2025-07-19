@@ -57,9 +57,8 @@ class UserRankService(
         tmpSet.clear()
 
         val data: List<UserRank> =
-            courseCompletionHistoryRepository.getDateRangeUserRankings(startDate.atStartOfDay()).onEach {
-                it.profileImage =
-                    it.profileImage?.let { profileImage -> objectStorageRepository.getDownloadUrl(profileImage) }
+            courseCompletionHistoryRepository.getDateRangeUserRankings(startDate.atStartOfDay()).map {
+                it.copy(profileImage = it.profileImage?.let { profileImage -> objectStorageRepository.getDownloadUrl(profileImage) })
             }
         if (data.isEmpty()) {
             redissonClient.keys.delete(targetKey)
