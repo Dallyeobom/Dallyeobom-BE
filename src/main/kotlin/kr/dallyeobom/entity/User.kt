@@ -16,7 +16,7 @@ class User(
     val nickname: String,
     @Column(length = 30, nullable = false, updatable = false, unique = true)
     val email: String,
-    @Column(updatable = true, length = 255)
+    @Column(updatable = true, length = 60)
     val profileImage: String?,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
