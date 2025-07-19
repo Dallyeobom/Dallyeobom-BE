@@ -13,9 +13,12 @@ data class CourseRankResponse(
     val interval: Long,
 ) {
     companion object {
-        fun from(courseRankingInfo: CourseRankingInfo): CourseRankResponse =
+        fun from(
+            courseRankingInfo: CourseRankingInfo,
+            userProfileImageUrl: String?,
+        ): CourseRankResponse =
             CourseRankResponse(
-                user = SimpleUserResponse.from(courseRankingInfo.user),
+                user = SimpleUserResponse.from(courseRankingInfo.user, userProfileImageUrl),
                 interval = courseRankingInfo.interval.toSeconds(),
             )
     }

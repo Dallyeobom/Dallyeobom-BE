@@ -194,7 +194,12 @@ class CourseService(
                 course,
                 size,
             )
-        return rankings.map(CourseRankResponse::from)
+        return rankings.map { ranking ->
+            CourseRankResponse.from(
+                ranking,
+                ranking.user.profileImage?.let { image -> objectStorageRepository.getDownloadUrl(image) },
+            )
+        }
     }
 
     @RedisLock(
@@ -246,6 +251,7 @@ class CourseService(
             NearByUserRunningCourseResponse.from(
                 it,
                 it.course.image?.let { image -> objectStorageRepository.getDownloadUrl(image) },
+                it.user.profileImage?.let { image -> objectStorageRepository.getDownloadUrl(image) },
             )
         }
     }
