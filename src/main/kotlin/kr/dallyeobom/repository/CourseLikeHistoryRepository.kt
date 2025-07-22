@@ -12,4 +12,9 @@ interface CourseLikeHistoryRepository : JpaRepository<CourseLikeHistory, Long> {
     ): Int
 
     fun countByCourse(course: Course): Int
+
+    fun findByUserIdAndCourseIn(
+        userId: Long,
+        courses: List<Course>,
+    ): List<CourseLikeHistory>
 }

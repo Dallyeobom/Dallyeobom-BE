@@ -98,14 +98,33 @@ class CourseService(
         }
     }
 
-    fun searchNearByLocation(request: NearByCourseSearchRequest): List<NearByCourseSearchResponse> =
-        courseRepository
-            .findNearByCourseByLocation(
-                request.longitude,
-                request.latitude,
-                request.radius,
-                request.maxCount,
-            ).map { NearByCourseSearchResponse.from(it, objectStorageRepository.getDownloadUrl(it.overviewImage)) }
+    @Transactional(readOnly = true)
+    fun searchNearByLocation(
+        userId: Long,
+        request: NearByCourseSearchRequest,
+    ): List<NearByCourseSearchResponse> {
+        val courses =
+            courseRepository
+                .findNearByCourseByLocation(
+                    request.longitude,
+                    request.latitude,
+                    request.radius,
+                    request.maxCount,
+                )
+        val likedCourses =
+            courseLikeHistoryRepository
+                .findByUserIdAndCourseIn(
+                    userId,
+                    courses,
+                ).associateBy { it.course.id }
+        return courses.map {
+            NearByCourseSearchResponse.from(
+                it,
+                objectStorageRepository.getDownloadUrl(it.overviewImage),
+                it.id in likedCourses,
+            )
+        }
+    }
 
     fun getCourseDetail(
         userId: Long,

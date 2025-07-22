@@ -2,6 +2,7 @@ package kr.dallyeobom.controller.course.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 import kr.dallyeobom.entity.Course
+import kr.dallyeobom.entity.CourseLevel
 
 data class NearByCourseSearchResponse(
     @Schema(description = "코스 ID", example = "1")
@@ -14,17 +15,24 @@ data class NearByCourseSearchResponse(
     val overViewImageUrl: String,
     @Schema(description = "코스 길이 (미터 단위)", example = "15000")
     val length: Int,
+    @Schema(description = "난이도", example = "MIDDLE")
+    val level: CourseLevel,
+    @Schema(description = "좋아요 여부", example = "true")
+    val isLiked: Boolean,
 ) {
     companion object {
         fun from(
             course: Course,
             overViewImageUrl: String,
+            isLiked: Boolean,
         ) = NearByCourseSearchResponse(
             id = course.id,
             name = course.name,
             location = course.location,
             overViewImageUrl = overViewImageUrl,
             length = course.length,
+            level = course.courseLevel,
+            isLiked = isLiked,
         )
     }
 }
