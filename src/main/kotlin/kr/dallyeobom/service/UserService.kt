@@ -31,6 +31,7 @@ import kr.dallyeobom.repository.TermsRepository
 import kr.dallyeobom.repository.UserOauthInfoRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.jwt.JwtUtil
+import kr.dallyeobom.util.lock.RedisLock
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -94,9 +95,15 @@ class UserService(
         } ?: KakaoLoginResponse(isNewUser = true)
     }
 
+    @RedisLock(
+        prefix = "userNickname",
+        key = "#request.nickname",
+        waitTime = 5,
+        leaseTime = 3,
+    )
     @Transactional
     fun createUser(request: KakaoUserCreateRequest): ServiceTokensResponse {
-        if (userRepository.existsByNickname(request.nickName)) {
+        if (userRepository.existsByNickname(request.nickname)) {
             throw AlreadyExistNicknameException()
         }
         val kakaoProfile = kakaoApiClient.getKakaoProfile(request.providerAccessToken)
@@ -110,7 +117,7 @@ class UserService(
         val user =
             userRepository.save(
                 User.createUser(
-                    nickname = request.nickName,
+                    nickname = request.nickname,
                     email = email,
                 ),
             )
@@ -174,6 +181,12 @@ class UserService(
         return UserInfoResponse(user.nickname, user.profileImage)
     }
 
+    @RedisLock(
+        prefix = "userNickname",
+        key = "#nicknameUpdateRequest.nickname",
+        waitTime = 5,
+        leaseTime = 3,
+    )
     @Transactional
     fun updateNickname(
         nicknameUpdateRequest: NicknameUpdateRequest,
