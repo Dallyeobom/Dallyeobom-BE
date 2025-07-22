@@ -111,17 +111,18 @@ class CourseService(
                     request.radius,
                     request.maxCount,
                 )
-        val likedCourses =
+        val likedCourseIds =
             courseLikeHistoryRepository
                 .findByUserIdAndCourseIn(
                     userId,
                     courses,
-                ).associateBy { it.course.id }
+                ).map { it.course.id }
+                .toSet()
         return courses.map {
             NearByCourseSearchResponse.from(
                 it,
                 objectStorageRepository.getDownloadUrl(it.overviewImage),
-                it.id in likedCourses,
+                it.id in likedCourseIds,
             )
         }
     }
