@@ -14,14 +14,27 @@ import org.hibernate.annotations.DynamicUpdate
 )
 @DynamicUpdate
 class User(
-    @Column(length = 20, nullable = false, updatable = false, unique = true)
-    val nickname: String,
+    @Column(length = 20, nullable = false, updatable = true, unique = true)
+    var nickname: String,
     @Column(length = 30, nullable = false, updatable = false, unique = true)
     val email: String,
+    @Column(updatable = true, length = 60)
+    val profileImage: String?,
     @Column(length = 200)
     var fcmToken: String? = null,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
     val id: Long = 0L,
-) : BaseModifiableEntity()
+) : BaseModifiableEntity() {
+    fun updateNickname(nickname: String) {
+        this.nickname = nickname
+    }
+
+    companion object {
+        fun createUser(
+            nickname: String,
+            email: String,
+        ): User = User(nickname, email, null)
+    }
+}
