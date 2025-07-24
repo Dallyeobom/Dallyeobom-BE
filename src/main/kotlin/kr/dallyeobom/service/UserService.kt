@@ -83,13 +83,16 @@ class UserService(
         return ServiceTokensResponse(accessToken, refreshToken)
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     fun kakaoLogin(request: KakaoLoginRequest): KakaoLoginResponse {
         val kakaoProfile = kakaoApiClient.getKakaoProfile(request.providerAccessToken)
         val providerUserId = requireNotNull(kakaoProfile?.id) { "해당 계정 정보가 존재하지 않습니다." }
         val userOauthInfo = userOauthInfoRepository.findByProviderUserIdAndProvider(providerUserId, Provder.KAKAO)
 
         return userOauthInfo?.let {
+            if (request.fcmToken != it.user.fcmToken) {
+                it.user.fcmToken = request.fcmToken
+            }
             val tokens = makeTokens(it.user)
             KakaoLoginResponse(tokens.accessToken, tokens.refreshToken, isNewUser = false)
         } ?: KakaoLoginResponse(isNewUser = true)

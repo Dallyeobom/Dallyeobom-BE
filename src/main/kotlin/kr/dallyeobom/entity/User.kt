@@ -6,11 +6,13 @@ import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import org.hibernate.annotations.DynamicUpdate
 
 @Entity
 @Table(
     name = "users", // Oracle에선 user라는 이름이 예약어라 users로 변경
 )
+@DynamicUpdate
 class User(
     @Column(length = 20, nullable = false, updatable = true, unique = true)
     var nickname: String,
@@ -18,6 +20,8 @@ class User(
     val email: String,
     @Column(updatable = true, length = 60)
     val profileImage: String?,
+    @Column(length = 200)
+    var fcmToken: String? = null,
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
