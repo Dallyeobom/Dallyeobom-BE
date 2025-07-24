@@ -12,8 +12,8 @@ import jakarta.persistence.Table
     name = "users", // Oracle에선 user라는 이름이 예약어라 users로 변경
 )
 class User(
-    @Column(length = 20, nullable = false, updatable = false, unique = true)
-    val nickname: String,
+    @Column(length = 20, nullable = false, updatable = true, unique = true)
+    var nickname: String,
     @Column(length = 30, nullable = false, updatable = false, unique = true)
     val email: String,
     @Column(updatable = true, length = 60)
@@ -23,6 +23,10 @@ class User(
     @Column(nullable = false, updatable = false)
     val id: Long = 0L,
 ) : BaseModifiableEntity() {
+    fun updateNickname(nickname: String) {
+        this.nickname = nickname
+    }
+
     companion object {
         fun createUser(
             nickname: String,

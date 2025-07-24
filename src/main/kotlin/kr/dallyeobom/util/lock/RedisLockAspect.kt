@@ -19,7 +19,7 @@ class RedisLockAspect(
     fun around(
         joinPoint: ProceedingJoinPoint,
         redisLock: RedisLock,
-    ): Any {
+    ): Any? {
         val lockKey = getLockKey(joinPoint, redisLock)
         val lock = redissonClient.getLock(lockKey)
         var acquired = false
