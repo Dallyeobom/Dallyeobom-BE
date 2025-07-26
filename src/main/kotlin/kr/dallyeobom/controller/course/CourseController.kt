@@ -39,8 +39,11 @@ class CourseController(
     }
 
     @GetMapping("/nearby")
-    override fun searchNearByLocation(request: NearByCourseSearchRequest): List<NearByCourseSearchResponse> =
-        courseService.searchNearByLocation(request)
+    override fun searchNearByLocation(
+        @LoginUserId
+        userId: Long,
+        request: NearByCourseSearchRequest,
+    ): List<NearByCourseSearchResponse> = courseService.searchNearByLocation(userId, request)
 
     @GetMapping("/{id}")
     override fun getCourseDetail(
