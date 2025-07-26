@@ -3,8 +3,10 @@ package kr.dallyeobom.controller.auth
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
+import kr.dallyeobom.controller.auth.request.RefreshAccessTokenRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.controller.auth.response.UserInfoResponse
@@ -64,4 +66,9 @@ class AuthController(
     fun getToken(
         @RequestParam code: String,
     ) = userService.getProviderAccessToken(code)
+
+    @PostMapping("/refresh")
+    override fun refreshAccessToken(
+        @RequestBody request: RefreshAccessTokenRequest,
+    ): ServiceTokensResponse = userService.refreshTokens(request)
 }

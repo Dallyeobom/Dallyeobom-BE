@@ -11,12 +11,13 @@ import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
 import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
+import kr.dallyeobom.controller.auth.request.RefreshAccessTokenRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
+import kr.dallyeobom.controller.auth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
 import kr.dallyeobom.controller.auth.response.UserInfoResponse
-import kr.dallyeobom.controller.temporalAuth.response.ServiceTokensResponse
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
@@ -221,4 +222,13 @@ interface AuthControllerSpec {
     fun getTermsDetail(
         @PathVariable id: Long,
     ): TermsDetailResponse
+
+    @Operation(
+        summary = "리프레시 토큰으로 엑세스 토큰 재발급",
+        description = "리프레시 토큰으로 엑세스 토큰을 재발급합니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "엑세스 토큰 재발급 성공"),
+        ],
+    )
+    fun refreshAccessToken(request: RefreshAccessTokenRequest): ServiceTokensResponse
 }
