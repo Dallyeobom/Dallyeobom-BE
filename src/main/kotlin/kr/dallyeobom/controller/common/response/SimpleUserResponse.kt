@@ -10,16 +10,16 @@ data class SimpleUserResponse(
     @field:Schema(description = "유저 닉네임", example = "홍길동")
     val nickname: String,
     @field:Schema(description = "유저 프로필 이미지 URL", example = "https://example.com/profile.jpg")
-    val profileImageUrl: String?,
+    val profileImage: String?,
 ) {
     companion object {
         fun from(
             user: User,
-            profileImageUrl: String?,
+            profileImage: String?,
         ) = SimpleUserResponse(
             id = user.id,
             nickname = user.nickname,
-            profileImageUrl = profileImageUrl,
+            profileImage = profileImage,
         )
     }
 }

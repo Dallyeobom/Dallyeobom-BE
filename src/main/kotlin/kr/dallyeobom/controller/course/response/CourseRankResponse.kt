@@ -15,10 +15,10 @@ data class CourseRankResponse(
     companion object {
         fun from(
             courseRankingInfo: CourseRankingInfo,
-            userProfileImageUrl: String?,
+            userProfileImage: String?,
         ): CourseRankResponse =
             CourseRankResponse(
-                user = SimpleUserResponse.from(courseRankingInfo.user, userProfileImageUrl),
+                user = SimpleUserResponse.from(courseRankingInfo.user, userProfileImage),
                 interval = courseRankingInfo.interval.toSeconds(),
             )
     }

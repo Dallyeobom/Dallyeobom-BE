@@ -17,12 +17,12 @@ data class NearByUserRunningCourseResponse(
         fun from(
             userRunningCourse: UserRunningCourse,
             courseImage: String?,
-            userProfileImageUrl: String?,
+            userProfileImage: String?,
         ) = NearByUserRunningCourseResponse(
             id = userRunningCourse.course.id,
             name = userRunningCourse.course.name,
             courseImage = courseImage,
-            user = SimpleUserResponse.from(userRunningCourse.user, userProfileImageUrl),
+            user = SimpleUserResponse.from(userRunningCourse.user, userProfileImage),
         )
     }
 }
