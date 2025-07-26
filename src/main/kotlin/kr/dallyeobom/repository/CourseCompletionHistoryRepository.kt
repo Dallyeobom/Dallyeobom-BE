@@ -49,6 +49,7 @@ class CustomCourseCompletionHistoryRepositoryImpl(
         selectNew<UserRank>(
             path(User::id),
             path(User::nickname),
+            path(User::profileImage),
             sum(CourseCompletionHistory::length),
             count(courseCompletionHistoryEntity),
         ).from(
@@ -60,6 +61,7 @@ class CustomCourseCompletionHistoryRepositoryImpl(
             // Id를 기준으로 그룹을 잡아도 되지만 ANSI SQL 표준에 따라 select 절에 있는 컬럼을 모두 group by에 넣어야함
             path(User::id),
             path(User::nickname),
+            path(User::profileImage),
         ).orderBy(
             sum(CourseCompletionHistory::length).desc(),
         )
