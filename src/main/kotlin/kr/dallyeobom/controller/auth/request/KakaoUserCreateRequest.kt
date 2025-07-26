@@ -11,7 +11,7 @@ data class KakaoUserCreateRequest(
     @field:Schema(
         example = "닉네임",
     )
-    val nickName: String,
+    val nickname: String,
     @field:NotBlank(message = "provider 엑세스 토큰은 필수입니다.")
     @field:Schema(
         example = "provider 액세스 토큰",
