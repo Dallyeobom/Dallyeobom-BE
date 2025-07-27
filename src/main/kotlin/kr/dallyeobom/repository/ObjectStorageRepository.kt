@@ -52,6 +52,7 @@ class ObjectStorageRepository(
         const val COURSE_OVERVIEW_IMAGE_PATH = "course/overview/"
         const val COURSE_IMAGE_PATH = "course/image/"
         const val COMPLETION_IMAGE_PATH = "course/completion/"
+        const val USER_PROFILE_IMAGE_PATH = "user/profile/image"
 
         fun generateFileName(extension: String): String = "${UUID.randomUUID()}.$extension" // 중복나지 않도록 UUID 사용
     }
