@@ -3,7 +3,6 @@ package kr.dallyeobom.service
 import kr.dallyeobom.client.KakaoApiClient
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
-import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
 import kr.dallyeobom.controller.auth.request.RefreshAccessTokenRequest
 import kr.dallyeobom.controller.auth.request.TermsAgreeRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
@@ -11,9 +10,10 @@ import kr.dallyeobom.controller.auth.response.NicknameCheckResponse
 import kr.dallyeobom.controller.auth.response.ServiceTokensResponse
 import kr.dallyeobom.controller.auth.response.TermsDetailResponse
 import kr.dallyeobom.controller.auth.response.TermsSearchResponse
-import kr.dallyeobom.controller.auth.response.UserInfoResponse
 import kr.dallyeobom.controller.temporalAuth.request.CreateUserRequest
 import kr.dallyeobom.controller.temporalAuth.response.TemporalUserResponse
+import kr.dallyeobom.controller.user.request.NicknameUpdateRequest
+import kr.dallyeobom.controller.user.response.UserInfoResponse
 import kr.dallyeobom.entity.Provder
 import kr.dallyeobom.entity.Terms
 import kr.dallyeobom.entity.TermsAgreeHistory
