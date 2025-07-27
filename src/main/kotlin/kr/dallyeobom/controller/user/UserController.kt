@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
@@ -32,6 +33,7 @@ class UserController(
     @PutMapping("/profile-image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     override fun updateProfileImage(
         @LoginUserId userId: Long,
+        @RequestPart
         profileImage: MultipartFile,
     ) = userService.updateProfileImage(userId, profileImage)
 }

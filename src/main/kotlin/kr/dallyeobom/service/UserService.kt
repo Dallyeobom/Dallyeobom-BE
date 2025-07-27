@@ -216,8 +216,10 @@ class UserService(
         profileImage: MultipartFile,
     ) {
         val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
+        val prevProfileImage = user.profileImage
         val profileImageUrl =
             objectStorageRepository.upload(ObjectStorageRepository.USER_PROFILE_IMAGE_PATH, profileImage)
+        prevProfileImage?.let { objectStorageRepository.delete(it) }
         user.profileImage = profileImageUrl
     }
 
