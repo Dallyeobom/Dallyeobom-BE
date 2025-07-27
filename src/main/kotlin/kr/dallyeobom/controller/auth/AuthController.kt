@@ -2,7 +2,6 @@ package kr.dallyeobom.controller.auth
 
 import kr.dallyeobom.controller.auth.request.KakaoLoginRequest
 import kr.dallyeobom.controller.auth.request.KakaoUserCreateRequest
-import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
 import kr.dallyeobom.controller.auth.request.RefreshAccessTokenRequest
 import kr.dallyeobom.controller.auth.response.KakaoLoginResponse
 import kr.dallyeobom.controller.auth.response.NicknameCheckResponse

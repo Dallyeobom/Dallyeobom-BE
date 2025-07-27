@@ -1,7 +1,7 @@
 package kr.dallyeobom.controller.user
 
-import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
-import kr.dallyeobom.controller.auth.response.UserInfoResponse
+import kr.dallyeobom.controller.user.request.NicknameUpdateRequest
+import kr.dallyeobom.controller.user.response.UserInfoResponse
 import kr.dallyeobom.service.UserService
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.validation.annotation.Validated

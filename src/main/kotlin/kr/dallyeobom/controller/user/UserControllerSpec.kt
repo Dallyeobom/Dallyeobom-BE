@@ -6,8 +6,8 @@ import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dallyeobom.config.swagger.SwaggerTag
-import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
-import kr.dallyeobom.controller.auth.response.UserInfoResponse
+import kr.dallyeobom.controller.user.request.NicknameUpdateRequest
+import kr.dallyeobom.controller.user.response.UserInfoResponse
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.RequestBody
