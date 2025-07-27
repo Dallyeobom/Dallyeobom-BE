@@ -164,7 +164,6 @@ interface CourseControllerSpec {
                 description = """
         잘못된 요청:
         • 코스 ID가 양수가 아님  
-        • 마지막 조회 ID가 양수가 아님
         • 조회 사이즈가 양수가 아님
       """,
                 content = arrayOf(Content()),
