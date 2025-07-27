@@ -11,6 +11,7 @@ import kr.dallyeobom.config.swagger.SwaggerTag
 import kr.dallyeobom.controller.common.request.SliceRequest
 import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionCreateRequest
+import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCompletionUpdateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequest
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
@@ -158,5 +159,45 @@ interface CourseCompletionHistoryControllerSpec {
         @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
         @Schema(description = "삭제하고자 하는 코스 완주 기록의 ID", example = "1")
         id: Long,
+    )
+
+    @Operation(
+        summary = "코스 완주 기록 수정",
+        description = "코스 완주 기록 ID를 입력받아 해당 기록을 수정합니다.",
+        responses = [
+            ApiResponse(responseCode = "204", description = "코스 완주 기록 수정 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 코스 완주 기록 ID가 양수가 아님  
+        • 리뷰의 길이가 1자 미만이거나 300자를 초과함
+        • 코스 인증샷이 1개 미만이거나 3개를 초과함
+        • 파일 사이즈가 1MB를 초과함
+      """,
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(responseCode = "403", description = "유저가 생성한 코스 완주 기록이 아님", content = arrayOf(Content())),
+            ApiResponse(
+                responseCode = "404",
+                description = """
+        없는 리소스에 대한 요청:
+        • ID에 해당하는 코스 완주 기록 존재하지 않음
+        • 지우고자한 인증샷 ID에 해당하는 인증샷이 존재하지 않음
+      """,
+                content = arrayOf(Content()),
+            ),
+        ],
+    )
+    fun updateCourseCompletionHistory(
+        userId: Long,
+        @Positive(message = "코스 완주 기록 ID는 양수여야 합니다.")
+        @Schema(description = "수정하고자 하는 코스 완주 기록의 ID", example = "1")
+        id: Long,
+        @Validated request: CourseCompletionUpdateRequest,
+        @MaxFileSize
+        @Size(max = 3, message = "인증샷은 최대 3개까지 업로드할 수 있습니다.")
+        @Schema(description = "추가할 코스 완주 인증샷들 - null도 가능하며 기존에 올린 인증샷 포함 최대 3개까지 업로드 가능, 각 사진의 최대 크기는 1MB")
+        completionImages: List<MultipartFile>?,
     )
 }
