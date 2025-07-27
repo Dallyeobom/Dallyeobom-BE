@@ -12,6 +12,7 @@ import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
+import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
 import kr.dallyeobom.dto.CourseCreateDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCreatorType
@@ -279,5 +280,34 @@ class CourseService(
     @Transactional
     fun deleteRunningCourse(userId: Long) {
         userRunningCourseRepository.deleteByUserId(userId)
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserLikeCourses(
+        loginUserId: Long,
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<UserLikedCourseResponse> {
+        val user = userRepository.findById(id).getOrNull() ?: throw BaseException(ErrorCode.USER_NOT_FOUND, "해당 유저를 찾을 수 없습니다.")
+        val likedCourses = courseLikeHistoryRepository.findSliceByUser(user, sliceRequest)
+
+        // 조회하고자 하는 유저의 좋아요 여부와 요청을 보낸 유저의 좋아요 여부를 구분하기 위해 로그인한 유저의 좋아요 기록을 따로 필요한것만 가져온다.
+        val loginUserLikedCourseIds =
+            courseLikeHistoryRepository
+                .findByUserIdAndCourseIn(
+                    loginUserId,
+                    likedCourses.content.mapNotNull { it.course },
+                ).map { it.course.id }
+                .toSet()
+        return SliceResponse.from(
+            likedCourses.map { likedCourse ->
+                UserLikedCourseResponse.from(
+                    likedCourse,
+                    objectStorageRepository.getDownloadUrl(likedCourse.course.overviewImage),
+                    likedCourse.course.id in loginUserLikedCourseIds,
+                )
+            },
+            likedCourses.lastOrNull()?.id,
+        )
     }
 }
