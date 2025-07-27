@@ -42,7 +42,7 @@ interface CourseCompletionHistoryControllerSpec {
         • 공개 설정이 PUBLIC인데 생성 정보가 없는경우
         • 코스 설명이 1자 미만이거나 500자를 초과함
         • 코스명이 1자 미만이거나 30자를 초과함
-        • 코스 인증샷이 1개 미만이거나 3개를 초과함
+        • 코스 인증샷이 3개를 초과함
         • 파일 사이즈가 1MB를 초과함
       """,
                 content = arrayOf(Content()),
@@ -57,9 +57,9 @@ interface CourseCompletionHistoryControllerSpec {
         @Schema(description = "코스 대표사진 - 코스 등록시에만 사용하며 없어도됨, 사진의 최대 크기는 1MB")
         courseImage: MultipartFile?,
         @MaxFileSize
-        @Size(min = 1, max = 3, message = "인증샷은 최소 1개에서 최대 3개까지 업로드할 수 있습니다.")
-        @Schema(description = "코스 완주 인증샷들 - 1 ~ 3개까지 업로드 가능, 각 사진의 최대 크기는 1MB")
-        completionImages: List<MultipartFile>,
+        @Size(max = 3, message = "인증샷은 최대 3개까지 업로드할 수 있습니다.")
+        @Schema(description = "코스 완주 인증샷들 - 3개까지 업로드 가능, 각 사진의 최대 크기는 1MB")
+        completionImages: List<MultipartFile>?,
     ): CourseCompletionCreateResponse
 
     @Operation(
@@ -172,7 +172,7 @@ interface CourseCompletionHistoryControllerSpec {
         잘못된 요청:
         • 코스 완주 기록 ID가 양수가 아님  
         • 리뷰의 길이가 1자 미만이거나 300자를 초과함
-        • 코스 인증샷이 1개 미만이거나 3개를 초과함
+        • 코스 인증샷이 3개를 초과함
         • 파일 사이즈가 1MB를 초과함
       """,
                 content = arrayOf(Content()),

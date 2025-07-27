@@ -51,7 +51,7 @@ class CourseCompletionHistoryService(
         userId: Long,
         request: CourseCompletionCreateRequest,
         courseImage: MultipartFile?,
-        completionImages: List<MultipartFile>,
+        completionImages: List<MultipartFile>?,
     ): CourseCompletionCreateResponse {
         val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
         val courseCompletionHistory =
@@ -67,10 +67,12 @@ class CourseCompletionHistoryService(
                     ),
                 )
 
-        saveCompletionImages(
-            courseCompletionHistory,
-            completionImages,
-        )
+        completionImages?.let {
+            saveCompletionImages(
+                courseCompletionHistory,
+                it,
+            )
+        }
 
         return CourseCompletionCreateResponse.from(courseCompletionHistory)
     }
@@ -248,7 +250,7 @@ class CourseCompletionHistoryService(
 
         val existingImages = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
         val imageCount = existingImages.size + (completionImages?.size ?: 0) - (request.deleteImageIds?.size ?: 0)
-        if (imageCount !in 1..3) {
+        if (imageCount > 3) {
             throw InvalidCourseCompletionImageCountException()
         }
         request.review?.let { courseCompletionHistory.review = it }

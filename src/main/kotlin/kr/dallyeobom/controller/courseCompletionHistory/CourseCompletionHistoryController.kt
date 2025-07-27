@@ -38,8 +38,8 @@ class CourseCompletionHistoryController(
         request: CourseCompletionCreateRequest,
         @RequestPart(required = false)
         courseImage: MultipartFile?,
-        @RequestPart
-        completionImages: List<MultipartFile>,
+        @RequestPart(required = false)
+        completionImages: List<MultipartFile>?,
     ): CourseCompletionCreateResponse =
         courseCompletionHistoryService.createCourseCompletionHistory(userId, request, courseImage, completionImages)
 

@@ -13,7 +13,7 @@ data class CourseReviewResponse(
     @Schema(description = "코스 리뷰 내용", example = "정말 좋은 코스였습니다!")
     val review: String,
     @Schema(
-        description = "코스 완료 이미지 URL 목록",
+        description = "코스 완료 이미지 URL 목록 - 없으면 null",
         example = "[\"https://example.com/image1.jpg\", \"https://example.com/image2.jpg\"]",
     )
     val completionImages: List<String>?,

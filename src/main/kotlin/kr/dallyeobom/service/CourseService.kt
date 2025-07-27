@@ -295,7 +295,7 @@ class CourseService(
                 CourseReviewResponse.from(
                     completionHistory,
                     completionHistory.user.profileImage?.let { image -> objectStorageRepository.getDownloadUrl(image) },
-                    imageMap[completionHistory]?.map { objectStorageRepository.getDownloadUrl(it.image) } ?: emptyList(),
+                    imageMap[completionHistory]?.map { objectStorageRepository.getDownloadUrl(it.image) },
                 )
             }
         return SliceResponse.from(reviewResponses, completionHistories.lastOrNull()?.id)
