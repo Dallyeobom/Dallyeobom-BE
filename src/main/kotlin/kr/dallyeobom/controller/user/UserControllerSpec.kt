@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import kr.dallyeobom.config.swagger.SwaggerTag
-import kr.dallyeobom.controller.auth.request.NicknameUpdateRequest
-import kr.dallyeobom.controller.auth.response.UserInfoResponse
+import kr.dallyeobom.controller.user.request.NicknameUpdateRequest
+import kr.dallyeobom.controller.user.response.UserInfoResponse
 import kr.dallyeobom.util.LoginUserId
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springframework.validation.annotation.Validated
