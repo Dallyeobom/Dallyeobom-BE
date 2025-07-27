@@ -109,12 +109,12 @@ class CourseController(
         @LoginUserId userId: Long,
     ) = courseService.deleteRunningCourse(userId)
 
-    @GetMapping("user/{id}/like")
+    @GetMapping("user/{userId}/like")
     override fun getUserLikeCourses(
         @LoginUserId
         loginUserId: Long,
         @PathVariable
-        id: Long,
+        userId: Long,
         sliceRequest: SliceRequest,
-    ): SliceResponse<UserLikedCourseResponse> = courseService.getUserLikeCourses(loginUserId, id, sliceRequest)
+    ): SliceResponse<UserLikedCourseResponse> = courseService.getUserLikeCourses(loginUserId, userId, sliceRequest)
 }

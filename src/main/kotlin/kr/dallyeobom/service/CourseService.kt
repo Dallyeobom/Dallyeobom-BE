@@ -285,10 +285,10 @@ class CourseService(
     @Transactional(readOnly = true)
     fun getUserLikeCourses(
         loginUserId: Long,
-        id: Long,
+        userId: Long,
         sliceRequest: SliceRequest,
     ): SliceResponse<UserLikedCourseResponse> {
-        val user = userRepository.findById(id).getOrNull() ?: throw BaseException(ErrorCode.USER_NOT_FOUND, "해당 유저를 찾을 수 없습니다.")
+        val user = userRepository.findById(userId).getOrNull() ?: throw BaseException(ErrorCode.USER_NOT_FOUND, "해당 유저를 찾을 수 없습니다.")
         val likedCourses = courseLikeHistoryRepository.findSliceByUser(user, sliceRequest)
 
         // 조회하고자 하는 유저의 좋아요 여부와 요청을 보낸 유저의 좋아요 여부를 구분하기 위해 로그인한 유저의 좋아요 기록을 따로 필요한것만 가져온다.
