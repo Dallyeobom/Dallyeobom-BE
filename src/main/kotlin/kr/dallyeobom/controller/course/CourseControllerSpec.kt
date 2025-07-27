@@ -14,6 +14,7 @@ import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
+import kr.dallyeobom.controller.course.response.CourseReviewResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.util.validator.MaxFileSize
@@ -163,6 +164,7 @@ interface CourseControllerSpec {
                 description = """
         잘못된 요청:
         • 코스 ID가 양수가 아님  
+        • 마지막 조회 ID가 양수가 아님
         • 조회 사이즈가 양수가 아님
       """,
                 content = arrayOf(Content()),
@@ -228,4 +230,30 @@ interface CourseControllerSpec {
         ],
     )
     fun deleteRunningCourse(userId: Long)
+
+    @Operation(
+        summary = "코스 리뷰 조회",
+        description = "코스 ID를 입력받아 해당 코스의 리뷰를 조회합니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "코스 리뷰 조회 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 코스 ID가 양수가 아님  
+        • 마지막 조회 ID가 양수가 아님
+        • 조회 사이즈가 양수가 아님
+      """,
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 코스가 존재하지 않음", content = arrayOf(Content())),
+        ],
+    )
+    fun getCourseReviews(
+        @Positive(message = "코스 ID는 양수여야 합니다.")
+        @Schema(description = "리뷰를 조회하고자 하는 코스의 ID", example = "1")
+        id: Long,
+        @Validated
+        @ParameterObject sliceRequest: SliceRequest,
+    ): SliceResponse<CourseReviewResponse>
 }
