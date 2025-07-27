@@ -24,6 +24,7 @@ import kr.dallyeobom.exception.NotCourseCompletionHistoryCreatorException
 import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseCompletionImageRepository
+import kr.dallyeobom.repository.CourseLikeHistoryRepository
 import kr.dallyeobom.repository.CourseRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.UserRepository
@@ -45,6 +46,7 @@ class CourseCompletionHistoryService(
     private val objectStorageRepository: ObjectStorageRepository,
     private val userRepository: UserRepository,
     private val courseCompletionImageRepository: CourseCompletionImageRepository,
+    private val courseLikeHistoryRepository: CourseLikeHistoryRepository,
 ) {
     @Transactional
     fun createCourseCompletionHistory(
@@ -129,10 +131,11 @@ class CourseCompletionHistoryService(
 
     @Transactional(readOnly = true)
     fun getCourseCompletionHistoryListByUserId(
-        userId: Long,
+        loginUserId: Long,
+        id: Long,
         sliceRequest: SliceRequest,
     ): SliceResponse<CourseCompletionHistoryResponse> {
-        val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
+        val user = userRepository.findById(id).orElseThrow { UserNotFoundException(id) }
         val courseCompletionHistories =
             courseCompletionHistoryRepository.findSliceByUser(user, sliceRequest)
         val completionImageMap =
@@ -141,13 +144,23 @@ class CourseCompletionHistoryService(
                     courseCompletionHistories.content,
                 ).associateBy { it.completion.id }
 
+        val likedCourseIds =
+            courseLikeHistoryRepository
+                .findByUserIdAndCourseIn(
+                    loginUserId,
+                    courseCompletionHistories.content.mapNotNull { it.course },
+                ).map { it.course.id }
+                .toSet()
         return SliceResponse.from(
             courseCompletionHistories.map { courseCompletionHistory ->
                 CourseCompletionHistoryResponse.from(
                     courseCompletionHistory,
-                    objectStorageRepository.getDownloadUrl(
-                        completionImageMap[courseCompletionHistory.id]!!.image,
-                    ),
+                    completionImageMap[courseCompletionHistory.id]?.image?.let {
+                        objectStorageRepository.getDownloadUrl(
+                            it,
+                        )
+                    },
+                    courseCompletionHistory.course?.id in likedCourseIds,
                 )
             },
             courseCompletionHistories.lastOrNull()?.id,
