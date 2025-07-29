@@ -10,6 +10,7 @@ import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.CourseReviewResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
+import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
 import kr.dallyeobom.service.CourseService
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.HttpStatus.CREATED
@@ -108,6 +109,15 @@ class CourseController(
     override fun deleteRunningCourse(
         @LoginUserId userId: Long,
     ) = courseService.deleteRunningCourse(userId)
+
+    @GetMapping("user/{id}/like")
+    override fun getUserLikeCourses(
+        @LoginUserId
+        userId: Long,
+        @PathVariable
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<UserLikedCourseResponse> = courseService.getUserLikeCourses(userId, id, sliceRequest)
 
     @GetMapping("/{id}/review")
     override fun getCourseReviews(
