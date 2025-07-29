@@ -1,4 +1,4 @@
-package kr.dallyeobom.controller.auth.response
+package kr.dallyeobom.controller.user.response
 
 import io.swagger.v3.oas.annotations.media.Schema
 

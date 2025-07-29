@@ -19,7 +19,7 @@ class User(
     @Column(length = 30, nullable = false, updatable = false, unique = true)
     val email: String,
     @Column(updatable = true, length = 60)
-    val profileImage: String?,
+    var profileImage: String?,
     @Column(length = 200)
     var fcmToken: String? = null,
     @Id
