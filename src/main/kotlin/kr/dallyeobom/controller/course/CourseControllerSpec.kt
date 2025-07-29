@@ -248,10 +248,10 @@ interface CourseControllerSpec {
         ],
     )
     fun getUserLikeCourses(
-        loginUserId: Long,
+        userId: Long,
         @Positive(message = "유저 ID는 양수여야 합니다.")
         @Schema(description = "조회하고자 하는 유저의 ID", example = "1")
-        userId: Long,
+        id: Long,
         @Validated
         @ParameterObject sliceRequest: SliceRequest,
     ): SliceResponse<UserLikedCourseResponse>
