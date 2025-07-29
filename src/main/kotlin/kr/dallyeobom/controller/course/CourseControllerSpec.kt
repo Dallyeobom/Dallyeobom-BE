@@ -16,6 +16,7 @@ import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
+import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.validation.annotation.Validated
@@ -228,4 +229,30 @@ interface CourseControllerSpec {
         ],
     )
     fun deleteRunningCourse(userId: Long)
+
+    @Operation(
+        summary = "특정 유저가 좋아요한 코스 조회",
+        description = "특정 유저가 좋아요한 코스를 조회합니다. 유저 ID와 페이지 정보를 입력받아 해당 유저가 좋아요한 코스를 반환합니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "해당 유저가 좋아요한 코스 조회 성공"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 조회하고자 하는 유저 ID가 양수가 아님
+        • 마지막 조회 ID가 양수가 아님
+        • 조회하고자 하는 리스트 크기가 양수가 아님
+      """,
+                content = arrayOf(Content()),
+            ),
+        ],
+    )
+    fun getUserLikeCourses(
+        userId: Long,
+        @Positive(message = "유저 ID는 양수여야 합니다.")
+        @Schema(description = "조회하고자 하는 유저의 ID", example = "1")
+        id: Long,
+        @Validated
+        @ParameterObject sliceRequest: SliceRequest,
+    ): SliceResponse<UserLikedCourseResponse>
 }
