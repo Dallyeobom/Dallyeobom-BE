@@ -27,6 +27,7 @@ import kr.dallyeobom.exception.RequiredTermsAgreedPolicyException
 import kr.dallyeobom.exception.TermsDetailNotFoundException
 import kr.dallyeobom.exception.TermsNotFoundException
 import kr.dallyeobom.exception.UserNotFoundException
+import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.TermsAgreeHistoryRepository
 import kr.dallyeobom.repository.TermsRepository
 import kr.dallyeobom.repository.UserOauthInfoRepository
@@ -36,6 +37,7 @@ import kr.dallyeobom.util.lock.RedisLock
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 
 @Service
 class UserService(
@@ -44,6 +46,7 @@ class UserService(
     private val userOauthInfoRepository: UserOauthInfoRepository,
     private val termsRepository: TermsRepository,
     private val termsAgreeHistoryRepository: TermsAgreeHistoryRepository,
+    private val objectStorageRepository: ObjectStorageRepository,
     private val jwtUtil: JwtUtil,
 ) {
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
@@ -183,7 +186,10 @@ class UserService(
     @Transactional(readOnly = true)
     fun getUserInfo(userId: Long): UserInfoResponse {
         val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
-        return UserInfoResponse(user.nickname, user.profileImage)
+        return UserInfoResponse(
+            user.nickname,
+            user.profileImage?.let { objectStorageRepository.getDownloadUrl(it) },
+        )
     }
 
     @RedisLock(
@@ -202,6 +208,19 @@ class UserService(
         }
         val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
         user.updateNickname(nicknameUpdateRequest.nickname)
+    }
+
+    @Transactional
+    fun updateProfileImage(
+        userId: Long,
+        profileImage: MultipartFile,
+    ) {
+        val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
+        val prevProfileImage = user.profileImage
+        val profileImageUrl =
+            objectStorageRepository.upload(ObjectStorageRepository.USER_PROFILE_IMAGE_PATH, profileImage)
+        prevProfileImage?.let { objectStorageRepository.delete(it) }
+        user.profileImage = profileImageUrl
     }
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
