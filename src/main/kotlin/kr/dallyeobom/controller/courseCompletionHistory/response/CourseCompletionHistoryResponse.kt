@@ -8,6 +8,8 @@ data class CourseCompletionHistoryResponse(
     val id: Long,
     @Schema(description = "연결된 코스 ID", example = "1")
     val courseId: Long?,
+    @Schema(description = "코스명", example = "장충동 산5 15 Climb")
+    val courseName: String?,
     @Schema(description = "걸린시간 (초)", example = "3600")
     val interval: Long,
     @Schema(description = "거리 (미터)", example = "5000")
@@ -23,6 +25,7 @@ data class CourseCompletionHistoryResponse(
             CourseCompletionHistoryResponse(
                 id = item.id,
                 courseId = item.course?.id,
+                courseName = item.course?.name,
                 interval = item.interval.toSeconds(),
                 length = item.length,
                 completionImage = imageUrl,
