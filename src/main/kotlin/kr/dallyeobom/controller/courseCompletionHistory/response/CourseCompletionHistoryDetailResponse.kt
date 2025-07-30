@@ -38,8 +38,8 @@ class CourseCompletionHistoryDetailResponse(
             CourseCompletionHistoryDetailResponse(
                 id = courseCompletionHistory.id,
                 courseId = courseCompletionHistory.course?.id,
-                isCreator = courseCompletionHistory.course?.let { it.creatorId == userId },
                 courseName = courseCompletionHistory.course?.name,
+                isCreator = courseCompletionHistory.course?.let { it.creatorId == userId },
                 userId = courseCompletionHistory.user.id,
                 review = courseCompletionHistory.review,
                 interval = courseCompletionHistory.interval.toSeconds(),
