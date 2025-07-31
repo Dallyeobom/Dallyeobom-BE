@@ -319,13 +319,13 @@ class CourseService(
     ): SliceResponse<CourseReviewResponse> {
         val course = courseRepository.findById(id).getOrNull() ?: throw CourseNotFoundException()
         val completionHistories = courseCompletionHistoryRepository.findSliceByCourse(course, sliceRequest)
-        val imageMap = courseCompletionImageRepository.findAllByCompletionIn(completionHistories.content).groupBy { it.completion }
+        val imageMap = courseCompletionImageRepository.findAllByCompletionIn(completionHistories.content).groupBy { it.completion.id }
         val reviewResponses =
             completionHistories.map { completionHistory ->
                 CourseReviewResponse.from(
                     completionHistory,
                     completionHistory.user.profileImage?.let { image -> objectStorageRepository.getDownloadUrl(image) },
-                    imageMap[completionHistory]?.map { objectStorageRepository.getDownloadUrl(it.image) },
+                    imageMap[completionHistory.id]?.map { objectStorageRepository.getDownloadUrl(it.image) },
                 )
             }
         return SliceResponse.from(reviewResponses, completionHistories.lastOrNull()?.id)

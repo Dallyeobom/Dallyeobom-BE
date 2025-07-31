@@ -12,7 +12,7 @@ data class CourseCompletionHistoryResponse(
     val interval: Long,
     @Schema(description = "거리 (미터)", example = "5000")
     val length: Int,
-    @Schema(description = "코스 완주 인증샷", example = "\"https://example.com/image.jpg\"")
+    @Schema(description = "코스 완주 인증샷", example = "https://example.com/image.jpg")
     val completionImage: String?,
     @Schema(description = "좋아요 여부", example = "true")
     val isLiked: Boolean,
