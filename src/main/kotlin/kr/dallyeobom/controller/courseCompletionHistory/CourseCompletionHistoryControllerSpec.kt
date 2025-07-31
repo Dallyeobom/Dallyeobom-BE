@@ -16,6 +16,7 @@ import kr.dallyeobom.controller.courseCompletionHistory.request.CourseCreateRequ
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionCreateResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryDetailResponse
 import kr.dallyeobom.controller.courseCompletionHistory.response.CourseCompletionHistoryResponse
+import kr.dallyeobom.util.MAX_COMPLETION_IMAGE_COUNT
 import kr.dallyeobom.util.validator.MaxFileSize
 import org.springdoc.core.annotations.ParameterObject
 import org.springframework.validation.annotation.Validated
@@ -42,7 +43,7 @@ interface CourseCompletionHistoryControllerSpec {
         • 공개 설정이 PUBLIC인데 생성 정보가 없는경우
         • 코스 설명이 1자 미만이거나 500자를 초과함
         • 코스명이 1자 미만이거나 30자를 초과함
-        • 코스 인증샷이 3개를 초과함
+        • 코스 인증샷이 ${MAX_COMPLETION_IMAGE_COUNT}개를 초과함
         • 파일 사이즈가 1MB를 초과함
       """,
                 content = arrayOf(Content()),
@@ -57,8 +58,8 @@ interface CourseCompletionHistoryControllerSpec {
         @Schema(description = "코스 대표사진 - 코스 등록시에만 사용하며 없어도됨, 사진의 최대 크기는 1MB")
         courseImage: MultipartFile?,
         @MaxFileSize
-        @Size(max = 3, message = "인증샷은 최대 3개까지 업로드할 수 있습니다.")
-        @Schema(description = "코스 완주 인증샷들 - 3개까지 업로드 가능, 각 사진의 최대 크기는 1MB")
+        @Size(max = MAX_COMPLETION_IMAGE_COUNT, message = "인증샷은 최대 ${MAX_COMPLETION_IMAGE_COUNT}개까지 업로드할 수 있습니다.")
+        @Schema(description = "코스 완주 인증샷들 - ${MAX_COMPLETION_IMAGE_COUNT}개까지 업로드 가능, 각 사진의 최대 크기는 1MB")
         completionImages: List<MultipartFile>?,
     ): CourseCompletionCreateResponse
 
@@ -173,7 +174,7 @@ interface CourseCompletionHistoryControllerSpec {
         잘못된 요청:
         • 코스 완주 기록 ID가 양수가 아님  
         • 리뷰의 길이가 1자 미만이거나 300자를 초과함
-        • 코스 인증샷이 3개를 초과함
+        • 코스 인증샷이 ${MAX_COMPLETION_IMAGE_COUNT}개를 초과함
         • 파일 사이즈가 1MB를 초과함
       """,
                 content = arrayOf(Content()),
@@ -197,7 +198,7 @@ interface CourseCompletionHistoryControllerSpec {
         id: Long,
         @Validated request: CourseCompletionUpdateRequest,
         @MaxFileSize
-        @Size(max = 3, message = "인증샷은 최대 3개까지 업로드할 수 있습니다.")
+        @Size(max = MAX_COMPLETION_IMAGE_COUNT, message = "인증샷은 최대 ${MAX_COMPLETION_IMAGE_COUNT}개까지 업로드할 수 있습니다.")
         @Schema(description = "추가할 코스 완주 인증샷들 - null도 가능하며 기존에 올린 인증샷 포함 최대 3개까지 업로드 가능, 각 사진의 최대 크기는 1MB")
         completionImages: List<MultipartFile>?,
     )

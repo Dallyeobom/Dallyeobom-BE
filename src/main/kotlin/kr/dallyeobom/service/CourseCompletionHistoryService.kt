@@ -30,6 +30,7 @@ import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.CourseLengthUtil
+import kr.dallyeobom.util.MAX_COMPLETION_IMAGE_COUNT
 import kr.dallyeobom.util.lock.RedisLock
 import kr.dallyeobom.util.requireNull
 import org.springframework.stereotype.Service
@@ -263,7 +264,7 @@ class CourseCompletionHistoryService(
 
         val existingImages = courseCompletionImageRepository.findAllByCompletion(courseCompletionHistory)
         val imageCount = existingImages.size + (completionImages?.size ?: 0) - (request.deleteImageIds?.size ?: 0)
-        if (imageCount > 3) {
+        if (imageCount > MAX_COMPLETION_IMAGE_COUNT) {
             throw InvalidCourseCompletionImageCountException()
         }
         request.review?.let { courseCompletionHistory.review = it }
