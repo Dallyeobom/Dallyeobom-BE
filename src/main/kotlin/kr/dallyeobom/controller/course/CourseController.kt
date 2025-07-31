@@ -7,6 +7,7 @@ import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
+import kr.dallyeobom.controller.course.response.CourseReviewResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
@@ -117,4 +118,11 @@ class CourseController(
         id: Long,
         sliceRequest: SliceRequest,
     ): SliceResponse<UserLikedCourseResponse> = courseService.getUserLikeCourses(userId, id, sliceRequest)
+
+    @GetMapping("/{id}/review")
+    override fun getCourseReviews(
+        @PathVariable
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<CourseReviewResponse> = courseService.getCourseReviews(id, sliceRequest)
 }

@@ -10,6 +10,7 @@ import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
+import kr.dallyeobom.controller.course.response.CourseReviewResponse
 import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
@@ -309,5 +310,24 @@ class CourseService(
             },
             likedCourses.lastOrNull()?.id,
         )
+    }
+
+    @Transactional(readOnly = true)
+    fun getCourseReviews(
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<CourseReviewResponse> {
+        val course = courseRepository.findById(id).getOrNull() ?: throw CourseNotFoundException()
+        val completionHistories = courseCompletionHistoryRepository.findSliceByCourse(course, sliceRequest)
+        val imageMap = courseCompletionImageRepository.findAllByCompletionIn(completionHistories.content).groupBy { it.completion.id }
+        val reviewResponses =
+            completionHistories.map { completionHistory ->
+                CourseReviewResponse.from(
+                    completionHistory,
+                    completionHistory.user.profileImage?.let { image -> objectStorageRepository.getDownloadUrl(image) },
+                    imageMap[completionHistory.id]?.map { objectStorageRepository.getDownloadUrl(it.image) },
+                )
+            }
+        return SliceResponse.from(reviewResponses, completionHistories.lastOrNull()?.id)
     }
 }

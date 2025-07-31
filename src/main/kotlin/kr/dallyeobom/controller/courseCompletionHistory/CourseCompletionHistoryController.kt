@@ -38,8 +38,8 @@ class CourseCompletionHistoryController(
         request: CourseCompletionCreateRequest,
         @RequestPart(required = false)
         courseImage: MultipartFile?,
-        @RequestPart
-        completionImages: List<MultipartFile>,
+        @RequestPart(required = false)
+        completionImages: List<MultipartFile>?,
     ): CourseCompletionCreateResponse =
         courseCompletionHistoryService.createCourseCompletionHistory(userId, request, courseImage, completionImages)
 
@@ -65,13 +65,15 @@ class CourseCompletionHistoryController(
         courseImage: MultipartFile?,
     ) = courseCompletionHistoryService.createCourseFromCompletionHistory(userId, id, request, courseImage)
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/{id}")
     override fun getCourseCompletionHistoryListByUserId(
+        @LoginUserId
+        loginUserId: Long,
         @PathVariable
-        userId: Long,
+        id: Long,
         sliceRequest: SliceRequest,
     ): SliceResponse<CourseCompletionHistoryResponse> =
-        courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(userId, sliceRequest)
+        courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(loginUserId, id, sliceRequest)
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
