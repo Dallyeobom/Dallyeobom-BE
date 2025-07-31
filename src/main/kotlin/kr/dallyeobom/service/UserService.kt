@@ -226,6 +226,8 @@ class UserService(
     @Transactional
     fun deleteUser(userId: Long) {
         val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
+        user.profileImage?.let { objectStorageRepository.delete(it) }
+        userOauthInfoRepository.deleteByUser(user)
         userRepository.delete(user)
     }
 
