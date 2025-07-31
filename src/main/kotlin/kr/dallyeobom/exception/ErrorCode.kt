@@ -1,5 +1,6 @@
 package kr.dallyeobom.exception
 
+import kr.dallyeobom.util.MAX_COMPLETION_IMAGE_COUNT
 import org.springframework.http.HttpStatus
 
 enum class ErrorCode(
@@ -13,7 +14,7 @@ enum class ErrorCode(
     ALREADY_CREATED_COURSE(HttpStatus.BAD_REQUEST, 40002, "이미 생성된 코스입니다."),
     INVALID_REQUIRED_TERMS_POLICY(HttpStatus.BAD_REQUEST, 40003, "필수 이용약관은 동의해야합니다."),
     INVALID_RECENT_TERMS_POLICY(HttpStatus.BAD_REQUEST, 40004, "현재 이용약관이어야 합니다."),
-    INVALID_COURSE_COMPLETION_IMAGE_COUNT(HttpStatus.BAD_REQUEST, 40005, "인증샷은 최소 1개에서 최대 3개까지 업로드할 수 있습니다."),
+    INVALID_COURSE_COMPLETION_IMAGE_COUNT(HttpStatus.BAD_REQUEST, 40005, "인증샷은 최대 ${MAX_COMPLETION_IMAGE_COUNT}개까지 업로드할 수 있습니다."),
 
     // UNAUTHORIZED는 40100부터 시작
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, 40100, "인증되지 않은 사용자입니다."),

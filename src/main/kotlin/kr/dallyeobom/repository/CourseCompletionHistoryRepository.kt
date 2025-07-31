@@ -35,6 +35,11 @@ interface CustomCourseCompletionHistoryRepository {
         course: Course,
         limit: Int,
     ): List<CourseRankingInfo>
+
+    fun findSliceByCourse(
+        course: Course,
+        sliceRequest: SliceRequest,
+    ): Slice<CourseCompletionHistory>
 }
 
 class CustomCourseCompletionHistoryRepositoryImpl(
@@ -95,5 +100,19 @@ class CustomCourseCompletionHistoryRepositoryImpl(
                     path(CourseCompletionHistory::interval).asc(),
                     path(CourseCompletionHistory::id).asc(), // 동점자 처리: id로 정렬하여 순위를 유지
                 )
+        }
+
+    override fun findSliceByCourse(
+        course: Course,
+        sliceRequest: SliceRequest,
+    ): Slice<CourseCompletionHistory> =
+        kotlinJdslJpqlExecutor.getSlice(Pageable.ofSize(sliceRequest.size)) {
+            val entity = entity(CourseCompletionHistory::class)
+            select(entity)
+                .from(entity)
+                .whereAnd(
+                    path(CourseCompletionHistory::course).eq(course),
+                    sliceRequest.lastId?.let { path(CourseCompletionHistory::id).lt(it) },
+                ).orderBy(path(CourseCompletionHistory::id).desc())
         }
 }

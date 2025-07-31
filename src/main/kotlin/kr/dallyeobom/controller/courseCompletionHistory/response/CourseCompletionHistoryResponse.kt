@@ -12,13 +12,16 @@ data class CourseCompletionHistoryResponse(
     val interval: Long,
     @Schema(description = "거리 (미터)", example = "5000")
     val length: Int,
-    @Schema(description = "코스 완주 인증샷", example = "\"https://example.com/image.jpg\"")
-    val completionImage: String,
+    @Schema(description = "코스 완주 인증샷", example = "https://example.com/image.jpg")
+    val completionImage: String?,
+    @Schema(description = "좋아요 여부", example = "true")
+    val isLiked: Boolean,
 ) {
     companion object {
         fun from(
             item: CourseCompletionHistory,
-            imageUrl: String,
+            imageUrl: String?,
+            isLiked: Boolean,
         ): CourseCompletionHistoryResponse =
             CourseCompletionHistoryResponse(
                 id = item.id,
@@ -26,6 +29,7 @@ data class CourseCompletionHistoryResponse(
                 interval = item.interval.toSeconds(),
                 length = item.length,
                 completionImage = imageUrl,
+                isLiked = isLiked,
             )
     }
 }
