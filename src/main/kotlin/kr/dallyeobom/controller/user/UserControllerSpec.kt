@@ -80,8 +80,27 @@ interface UserControllerSpec {
     )
     fun updateProfileImage(
         @LoginUserId userId: Long,
-        @MaxFileSize
-        @Schema(description = "수정하고자 하는 프로필 이미지", required = true)
-        profileImage: MultipartFile,
+        @MaxFileSize @Schema(description = "수정하고자 하는 프로필 이미지", required = true) profileImage: MultipartFile,
+    )
+
+    @Operation(
+        summary = "유저 삭제 API",
+        description = "해당 유저를 삭제합니다.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "유저 삭제 성공",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 해당 유저가 존재하지 않음
+      """,
+            ),
+        ],
+    )
+    fun deleteUser(
+        @LoginUserId userId: Long,
     )
 }
