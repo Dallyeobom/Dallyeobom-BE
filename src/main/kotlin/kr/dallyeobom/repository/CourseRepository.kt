@@ -15,7 +15,9 @@ import org.springframework.stereotype.Repository
 @Repository
 interface CourseRepository :
     JpaRepository<Course, Long>,
-    CustomCourseRepository
+    CustomCourseRepository {
+    fun findAllByIdInOrderByIdDesc(ids: List<Long>): List<Course>
+}
 
 interface CustomCourseRepository {
     fun findNearByCourseByLocation(

@@ -323,8 +323,7 @@ class CourseService(
         val user = userRepository.findById(id).orElseThrow { UserNotFoundException(id) }
         // completedCourseIds와 completedCourses를 쿼리 한번으로 가져오려면 비효율적인 쿼리로 나와서 2번 쿼리로 나눠서 처리한다
         val completedCourseIds = courseRepository.findUserCompletedCourseIds(user, sliceRequest)
-        val completedCourses =
-            courseRepository.findAllById(completedCourseIds.content).sortedByDescending { it.id }
+        val completedCourses = courseRepository.findAllByIdInOrderByIdDesc(completedCourseIds.content)
 
         val likedCourseIds =
             courseLikeHistoryRepository
