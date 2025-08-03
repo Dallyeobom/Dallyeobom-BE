@@ -11,7 +11,7 @@ import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.CourseReviewResponse
-import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
+import kr.dallyeobom.controller.course.response.CourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
 import kr.dallyeobom.dto.CourseCreateDto
@@ -25,6 +25,7 @@ import kr.dallyeobom.exception.BaseException
 import kr.dallyeobom.exception.CourseNotFoundException
 import kr.dallyeobom.exception.ErrorCode
 import kr.dallyeobom.exception.NotCourseCreatorException
+import kr.dallyeobom.exception.UserNotFoundException
 import kr.dallyeobom.repository.CourseCompletionHistoryRepository
 import kr.dallyeobom.repository.CourseCompletionImageRepository
 import kr.dallyeobom.repository.CourseLikeHistoryRepository
@@ -34,6 +35,7 @@ import kr.dallyeobom.repository.UserRepository
 import kr.dallyeobom.repository.UserRunningCourseRepository
 import kr.dallyeobom.util.CourseCreateUtil
 import kr.dallyeobom.util.lock.RedisLock
+import org.springframework.data.domain.SliceImpl
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -104,7 +106,7 @@ class CourseService(
     fun searchNearByLocation(
         userId: Long,
         request: NearByCourseSearchRequest,
-    ): List<NearByCourseSearchResponse> {
+    ): List<CourseSearchResponse> {
         val courses =
             courseRepository
                 .findNearByCourseByLocation(
@@ -121,7 +123,7 @@ class CourseService(
                 ).map { it.course.id }
                 .toSet()
         return courses.map {
-            NearByCourseSearchResponse.from(
+            CourseSearchResponse.from(
                 it,
                 objectStorageRepository.getDownloadUrl(it.overviewImage),
                 it.id in likedCourseIds,
@@ -289,7 +291,7 @@ class CourseService(
         id: Long,
         sliceRequest: SliceRequest,
     ): SliceResponse<UserLikedCourseResponse> {
-        val user = userRepository.findById(id).getOrNull() ?: throw BaseException(ErrorCode.USER_NOT_FOUND, "해당 유저를 찾을 수 없습니다.")
+        val user = userRepository.findById(id).orElseThrow { UserNotFoundException(id) }
         val likedCourses = courseLikeHistoryRepository.findSliceByUser(user, sliceRequest)
 
         // 조회하고자 하는 유저의 좋아요 여부와 요청을 보낸 유저의 좋아요 여부를 구분하기 위해 로그인한 유저의 좋아요 기록을 따로 필요한것만 가져온다.
@@ -309,6 +311,41 @@ class CourseService(
                 )
             },
             likedCourses.lastOrNull()?.id,
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserCompletedCourses(
+        userId: Long,
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<CourseSearchResponse> {
+        val user = userRepository.findById(id).orElseThrow { UserNotFoundException(id) }
+        // completedCourseIds와 completedCourses를 쿼리 한번으로 가져오려면 비효율적인 쿼리로 나와서 2번 쿼리로 나눠서 처리한다
+        val completedCourseIds = courseRepository.findUserCompletedCourseIds(user, sliceRequest)
+        val completedCourses =
+            courseRepository.findAllById(completedCourseIds.content).sortedByDescending { it.id }
+
+        val likedCourseIds =
+            courseLikeHistoryRepository
+                .findByUserIdAndCourseIn(
+                    userId,
+                    completedCourses,
+                ).map { it.course.id }
+                .toSet()
+        return SliceResponse.from(
+            SliceImpl(
+                completedCourses.map { course ->
+                    CourseSearchResponse.from(
+                        course,
+                        objectStorageRepository.getDownloadUrl(course.overviewImage),
+                        course.id in likedCourseIds,
+                    )
+                },
+                completedCourseIds.pageable,
+                completedCourseIds.hasNext(),
+            ),
+            completedCourses.lastOrNull()?.id,
         )
     }
 

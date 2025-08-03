@@ -67,13 +67,11 @@ class CourseCompletionHistoryController(
 
     @GetMapping("/user/{id}")
     override fun getCourseCompletionHistoryListByUserId(
-        @LoginUserId
-        loginUserId: Long,
         @PathVariable
         id: Long,
         sliceRequest: SliceRequest,
     ): SliceResponse<CourseCompletionHistoryResponse> =
-        courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(loginUserId, id, sliceRequest)
+        courseCompletionHistoryService.getCourseCompletionHistoryListByUserId(id, sliceRequest)
 
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")

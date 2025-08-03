@@ -8,7 +8,7 @@ import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.CourseReviewResponse
-import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
+import kr.dallyeobom.controller.course.response.CourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
 import kr.dallyeobom.service.CourseService
@@ -45,7 +45,7 @@ class CourseController(
         @LoginUserId
         userId: Long,
         request: NearByCourseSearchRequest,
-    ): List<NearByCourseSearchResponse> = courseService.searchNearByLocation(userId, request)
+    ): List<CourseSearchResponse> = courseService.searchNearByLocation(userId, request)
 
     @GetMapping("/{id}")
     override fun getCourseDetail(
@@ -118,6 +118,15 @@ class CourseController(
         id: Long,
         sliceRequest: SliceRequest,
     ): SliceResponse<UserLikedCourseResponse> = courseService.getUserLikeCourses(userId, id, sliceRequest)
+
+    @GetMapping("user/{id}/completed")
+    override fun getUserCompletedCourses(
+        @LoginUserId
+        userId: Long,
+        @PathVariable
+        id: Long,
+        sliceRequest: SliceRequest,
+    ): SliceResponse<CourseSearchResponse> = courseService.getUserCompletedCourses(userId, id, sliceRequest)
 
     @GetMapping("/{id}/review")
     override fun getCourseReviews(
