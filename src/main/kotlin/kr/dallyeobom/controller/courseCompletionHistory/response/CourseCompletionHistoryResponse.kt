@@ -1,6 +1,7 @@
 package kr.dallyeobom.controller.courseCompletionHistory.response
 
 import io.swagger.v3.oas.annotations.media.Schema
+import kr.dallyeobom.dto.LatLngDto
 import kr.dallyeobom.entity.CourseCompletionHistory
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -18,6 +19,11 @@ data class CourseCompletionHistoryResponse(
     val length: Int,
     @Schema(description = "완주 일자", example = "2025-08-02")
     val completeDate: LocalDate,
+    @Schema(
+        description = "코스 경로",
+        example = "[{\"latitude\": 37.5665, \"longitude\": 126.978}, {\"latitude\": 37.567, \"longitude\": 126.979}]",
+    )
+    val path: List<LatLngDto>,
 ) {
     companion object {
         private val dateTimeFormatter = DateTimeFormatter.ofPattern("M월 d일 기록")
@@ -30,6 +36,7 @@ data class CourseCompletionHistoryResponse(
                 interval = item.interval.toSeconds(),
                 length = item.length,
                 completeDate = item.createdDateTime.toLocalDate(),
+                path = item.path.coordinates.map { LatLngDto(it.x, it.y) },
             )
     }
 }
