@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseLevel
 
-data class NearByCourseSearchResponse(
+data class CourseSearchResponse(
     @Schema(description = "코스 ID", example = "1")
     val id: Long,
     @Schema(description = "코스명", example = "장충동 산5 15 Climb")
@@ -25,7 +25,7 @@ data class NearByCourseSearchResponse(
             course: Course,
             overViewImageUrl: String,
             isLiked: Boolean,
-        ) = NearByCourseSearchResponse(
+        ) = CourseSearchResponse(
             id = course.id,
             name = course.name,
             location = course.location,
