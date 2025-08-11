@@ -6,6 +6,7 @@ import kr.dallyeobom.service.UserService
 import kr.dallyeobom.util.LoginUserId
 import org.springframework.http.MediaType
 import org.springframework.validation.annotation.Validated
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -36,4 +37,9 @@ class UserController(
         @RequestPart
         profileImage: MultipartFile,
     ) = userService.updateProfileImage(userId, profileImage)
+
+    @DeleteMapping("/profile-image")
+    override fun deleteProfileImage(userId: Long) = userService.deleteProfileImage(userId)
+
+
 }
