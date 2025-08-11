@@ -223,6 +223,14 @@ class UserService(
         user.profileImage = profileImageUrl
     }
 
+    @Transactional
+    fun deleteUser(userId: Long) {
+        val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
+        user.profileImage?.let { objectStorageRepository.delete(it) }
+        userOauthInfoRepository.deleteByUser(user)
+        userRepository.delete(user)
+    }
+
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
     @Transactional(readOnly = true)
     fun getProviderAccessToken(code: String) = kakaoApiClient.getToken(code)?.accessToken
