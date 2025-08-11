@@ -84,4 +84,18 @@ interface UserControllerSpec {
         @Schema(description = "수정하고자 하는 프로필 이미지", required = true)
         profileImage: MultipartFile,
     )
+
+    @Operation(
+        summary = "프로필 사진 삭제",
+        description = "프로필 사진을 삭제합니다",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "프로필 사진 삭제 성공",
+            ),
+        ]
+    )
+    fun deleteProfileImage(
+        @LoginUserId userId: Long
+    )
 }
