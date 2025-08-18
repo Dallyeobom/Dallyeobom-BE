@@ -12,12 +12,22 @@ import kr.dallyeobom.util.getSlice
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
+import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface CourseCompletionHistoryRepository :
     JpaRepository<CourseCompletionHistory, Long>,
-    CustomCourseCompletionHistoryRepository
+    CustomCourseCompletionHistoryRepository {
+
+    @Modifying(clearAutomatically = true)
+    @Query(
+        value = "DELETE FROM COURSE_COMPLETION_HISTORY CCH WHERE CCH.USER_ID=:userId", nativeQuery = true
+    )
+    fun deleteByUserId(@Param("userId") userId: Long)
+}
 
 interface CustomCourseCompletionHistoryRepository {
     fun getDateRangeUserRankings(

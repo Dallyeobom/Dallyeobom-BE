@@ -27,6 +27,9 @@ import kr.dallyeobom.exception.RequiredTermsAgreedPolicyException
 import kr.dallyeobom.exception.TermsDetailNotFoundException
 import kr.dallyeobom.exception.TermsNotFoundException
 import kr.dallyeobom.exception.UserNotFoundException
+import kr.dallyeobom.repository.CourseCompletionHistoryRepository
+import kr.dallyeobom.repository.CourseCompletionImageRepository
+import kr.dallyeobom.repository.CourseLikeHistoryRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.TermsAgreeHistoryRepository
 import kr.dallyeobom.repository.TermsRepository
@@ -48,6 +51,9 @@ class UserService(
     private val termsAgreeHistoryRepository: TermsAgreeHistoryRepository,
     private val objectStorageRepository: ObjectStorageRepository,
     private val jwtUtil: JwtUtil,
+    private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
+    private val courseCompletionImageRepository: CourseCompletionImageRepository,
+    private val courseLikeHistoryRepository: CourseLikeHistoryRepository,
 ) {
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
     fun getUsers(): List<TemporalUserResponse> = userRepository.findAll().map { TemporalUserResponse(it.id, it.nickname) }
@@ -228,6 +234,10 @@ class UserService(
         val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
         user.profileImage?.let { objectStorageRepository.delete(it) }
         userOauthInfoRepository.deleteByUser(user)
+        courseCompletionImageRepository.deleteByUser(user.id)
+        courseLikeHistoryRepository.deleteByUser(user)
+        courseCompletionHistoryRepository.deleteByUserId(user.id)
+        termsAgreeHistoryRepository.deleteByUserId(user.id)
         userRepository.delete(user)
     }
 

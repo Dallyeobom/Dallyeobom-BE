@@ -24,6 +24,8 @@ interface CourseLikeHistoryRepository :
         userId: Long,
         courses: List<Course>,
     ): List<CourseLikeHistory>
+
+    fun deleteByUser(user: User)
 }
 
 interface CustomCourseLikeHistoryRepository {
