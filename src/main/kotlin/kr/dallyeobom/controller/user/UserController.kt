@@ -42,4 +42,7 @@ class UserController(
     override fun deleteUser(
         @LoginUserId userId: Long,
     ) = userService.deleteUser(userId)
+
+    @DeleteMapping("/profile-image")
+    override fun deleteProfileImage(userId: Long) = userService.deleteProfileImage(userId)
 }

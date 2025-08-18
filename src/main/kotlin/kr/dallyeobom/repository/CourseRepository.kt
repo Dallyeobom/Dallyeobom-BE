@@ -1,16 +1,23 @@
 package kr.dallyeobom.repository
 
 import com.linecorp.kotlinjdsl.support.spring.data.jpa.repository.KotlinJdslJpqlExecutor
+import kr.dallyeobom.controller.common.request.SliceRequest
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
+import kr.dallyeobom.entity.User
 import kr.dallyeobom.util.getAll
+import kr.dallyeobom.util.getSlice
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
 interface CourseRepository :
     JpaRepository<Course, Long>,
-    CustomCourseRepository
+    CustomCourseRepository {
+    fun findAllByIdInOrderByIdDesc(ids: List<Long>): List<Course>
+}
 
 interface CustomCourseRepository {
     fun findNearByCourseByLocation(
@@ -19,6 +26,11 @@ interface CustomCourseRepository {
         radius: Int,
         maxCount: Int,
     ): List<Course>
+
+    fun findUserCompletedCourseIds(
+        user: User,
+        sliceRequest: SliceRequest,
+    ): Slice<Long>
 }
 
 class CustomCourseRepositoryImpl(
@@ -53,5 +65,21 @@ class CustomCourseRepositoryImpl(
                         .asSubquery()
                         .desc(),
                 )
+        }
+
+    override fun findUserCompletedCourseIds(
+        user: User,
+        sliceRequest: SliceRequest,
+    ): Slice<Long> =
+        kotlinJdslJpqlExecutor.getSlice(Pageable.ofSize(sliceRequest.size)) {
+            selectDistinct(path(Course::id))
+                .from(
+                    entity(CourseCompletionHistory::class),
+                    join(CourseCompletionHistory::course),
+                ).whereAnd(
+                    path(CourseCompletionHistory::user).eq(user),
+                    path(Course::deletedDateTime).isNull(),
+                    sliceRequest.lastId?.let { path(Course::id).lt(it) },
+                ).orderBy(path(Course::id).desc())
         }
 }

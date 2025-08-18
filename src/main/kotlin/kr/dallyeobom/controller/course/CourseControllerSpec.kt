@@ -15,7 +15,7 @@ import kr.dallyeobom.controller.course.response.CourseDetailResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.CourseReviewResponse
-import kr.dallyeobom.controller.course.response.NearByCourseSearchResponse
+import kr.dallyeobom.controller.course.response.CourseSearchResponse
 import kr.dallyeobom.controller.course.response.NearByUserRunningCourseResponse
 import kr.dallyeobom.controller.course.response.UserLikedCourseResponse
 import kr.dallyeobom.util.validator.MaxFileSize
@@ -55,7 +55,7 @@ interface CourseControllerSpec {
         userId: Long,
         @Validated
         @ParameterObject request: NearByCourseSearchRequest,
-    ): List<NearByCourseSearchResponse>
+    ): List<CourseSearchResponse>
 
     @Operation(
         summary = "코스 상세 조회",
@@ -256,6 +256,33 @@ interface CourseControllerSpec {
         @Validated
         @ParameterObject sliceRequest: SliceRequest,
     ): SliceResponse<UserLikedCourseResponse>
+
+    @Operation(
+        summary = "특정 유저가 완주한 코스 조회",
+        description = "특정 유저가 완주한 코스 리스트를 조회합니다. 서버 조회 성능을 위해 무한스크롤 방식으로 구현되었습니다.",
+        responses = [
+            ApiResponse(responseCode = "200", description = "코스 정보 리스트"),
+            ApiResponse(
+                responseCode = "400",
+                description = """
+        잘못된 요청:
+        • 조회하고자 하는 유저 ID가 양수가 아님
+        • 마지막 조회 ID가 양수가 아님
+        • 조회하고자 하는 리스트 크기가 양수가 아님
+      """,
+                content = arrayOf(Content()),
+            ),
+            ApiResponse(responseCode = "404", description = "ID에 해당하는 유저가 존재하지 않음", content = arrayOf(Content())),
+        ],
+    )
+    fun getUserCompletedCourses(
+        userId: Long,
+        @Positive(message = "유저 ID는 양수여야 합니다.")
+        @Schema(description = "조회하고자 하는 유저의 ID", example = "1")
+        id: Long,
+        @Validated
+        @ParameterObject sliceRequest: SliceRequest,
+    ): SliceResponse<CourseSearchResponse>
 
     @Operation(
         summary = "코스 리뷰 조회",

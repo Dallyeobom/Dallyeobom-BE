@@ -239,6 +239,17 @@ class UserService(
         courseCompletionHistoryRepository.deleteByUserId(user.id)
         termsAgreeHistoryRepository.deleteByUserId(user.id)
         userRepository.delete(user)
+
+    @Transactional
+    fun deleteProfileImage(
+        userId: Long
+    ) {
+        userRepository.findByIdOrNull(userId)
+            ?.apply {
+                profileImage?.let(objectStorageRepository::delete)
+                profileImage = null
+            }
+            ?: throw UserNotFoundException(userId)
     }
 
     @Deprecated("로그인 개발을 위한 provider 엑세스토큰 확인 API")
