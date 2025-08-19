@@ -239,6 +239,7 @@ class UserService(
         courseCompletionHistoryRepository.deleteByUserId(user.id)
         termsAgreeHistoryRepository.deleteByUserId(user.id)
         userRepository.delete(user)
+    }
 
     @Transactional
     fun deleteProfileImage(
