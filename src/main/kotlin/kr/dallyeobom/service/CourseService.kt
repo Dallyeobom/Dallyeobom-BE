@@ -141,7 +141,7 @@ class CourseService(
             course,
             course.image?.let { objectStorageRepository.getDownloadUrl(it) },
             objectStorageRepository.getDownloadUrl(course.overviewImage),
-            courseLikeHistoryRepository.findByUserIdAndCourseIn(userId, listOf(course)).isNotEmpty(),
+            courseLikeHistoryRepository.existsByUserIdAndCourse(userId, course),
         )
     }
 
