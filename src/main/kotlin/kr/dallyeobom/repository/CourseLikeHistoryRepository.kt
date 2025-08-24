@@ -24,6 +24,11 @@ interface CourseLikeHistoryRepository :
         userId: Long,
         courses: List<Course>,
     ): List<CourseLikeHistory>
+
+    fun existsByUserIdAndCourse(
+        userId: Long,
+        course: Course,
+    ): Boolean
 }
 
 interface CustomCourseLikeHistoryRepository {
