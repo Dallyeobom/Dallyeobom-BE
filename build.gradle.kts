@@ -68,7 +68,7 @@ dependencies {
 
     // Infrastructure
     implementation("com.oracle.database.jdbc:ojdbc11:23.8.0.25.04")
-    implementation("org.redisson:redisson-spring-boot-starter:3.47.0")
+    implementation("org.redisson:redisson-spring-boot-starter:3.51.0")
     implementation("io.awspring.cloud:spring-cloud-aws-starter-s3:3.2.1") // 3.3버전에 이슈가 있어서 올리면 안됨
     // implementation("org.hibernate.search:hibernate-search-backend-elasticsearch:7.2.3.Final") // OpenSearch를 사용하게되면 주석 해제
 
