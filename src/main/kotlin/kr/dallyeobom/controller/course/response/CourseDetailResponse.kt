@@ -25,6 +25,8 @@ data class CourseDetailResponse(
     val path: List<LatLngDto>,
     @Schema(description = "현재 유저가 해당 코스의 생성자 인지 여부 - 이 값을 가지고 나중에 코스 수정 API 호출 가능 여부를 결정하면 됩니다", example = "true")
     val isCreator: Boolean?,
+    @Schema(description = "좋아요 여부", example = "true")
+    val isLiked: Boolean,
 ) {
     companion object {
         fun from(
@@ -32,6 +34,7 @@ data class CourseDetailResponse(
             course: Course,
             imageUrl: String?,
             overViewImageUrl: String,
+            isLiked: Boolean,
         ) = CourseDetailResponse(
             id = course.id,
             name = course.name,
@@ -43,6 +46,7 @@ data class CourseDetailResponse(
             length = course.length,
             path = course.path.coordinates.map { LatLngDto(it.x, it.y) },
             isCreator = course.creatorId == userId,
+            isLiked = isLiked,
         )
     }
 }
