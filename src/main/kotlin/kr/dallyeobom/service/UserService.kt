@@ -234,7 +234,9 @@ class UserService(
         val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
         user.profileImage?.let { objectStorageRepository.delete(it) }
         userOauthInfoRepository.deleteByUser(user)
-        courseCompletionImageRepository.deleteByUser(user.id)
+        val completionImages = courseCompletionImageRepository.findByUser(user)
+        completionImages.forEach { objectStorageRepository.delete(it.image) }
+        courseCompletionImageRepository.deleteAll(completionImages)
         courseLikeHistoryRepository.deleteByUser(user)
         courseCompletionHistoryRepository.deleteByUserId(user.id)
         termsAgreeHistoryRepository.deleteByUserId(user.id)

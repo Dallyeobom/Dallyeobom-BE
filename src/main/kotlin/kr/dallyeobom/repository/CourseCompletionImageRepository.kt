@@ -6,12 +6,11 @@ import kr.dallyeobom.dto.CourseImageDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCompletionImage
+import kr.dallyeobom.entity.User
 import kr.dallyeobom.util.getSlice
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
-import org.springframework.data.jpa.repository.Modifying
-import org.springframework.data.jpa.repository.Query
 
 interface CourseCompletionImageRepository :
     JpaRepository<CourseCompletionImage, Long>,
@@ -19,11 +18,8 @@ interface CourseCompletionImageRepository :
     fun findAllByCompletion(completion: CourseCompletionHistory): List<CourseCompletionImage>
 
     fun findAllByCompletionIn(completions: List<CourseCompletionHistory>): List<CourseCompletionImage>
-    @Modifying(clearAutomatically = true)
-    @Query(
-        value = "DELETE FROM COURSE_COMPLETION_IMAGE CCI WHERE CCI.USER_ID=:userId", nativeQuery = true
-    )
-    fun deleteByUser(userId: Long)
+
+    fun findByUser(user: User): List<CourseCompletionImage>
 }
 
 interface CustomCourseCompletionImageRepository {
