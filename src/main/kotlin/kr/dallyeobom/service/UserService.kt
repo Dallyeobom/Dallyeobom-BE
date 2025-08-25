@@ -27,6 +27,9 @@ import kr.dallyeobom.exception.RequiredTermsAgreedPolicyException
 import kr.dallyeobom.exception.TermsDetailNotFoundException
 import kr.dallyeobom.exception.TermsNotFoundException
 import kr.dallyeobom.exception.UserNotFoundException
+import kr.dallyeobom.repository.CourseCompletionHistoryRepository
+import kr.dallyeobom.repository.CourseCompletionImageRepository
+import kr.dallyeobom.repository.CourseLikeHistoryRepository
 import kr.dallyeobom.repository.ObjectStorageRepository
 import kr.dallyeobom.repository.TermsAgreeHistoryRepository
 import kr.dallyeobom.repository.TermsRepository
@@ -48,6 +51,9 @@ class UserService(
     private val termsAgreeHistoryRepository: TermsAgreeHistoryRepository,
     private val objectStorageRepository: ObjectStorageRepository,
     private val jwtUtil: JwtUtil,
+    private val courseCompletionHistoryRepository: CourseCompletionHistoryRepository,
+    private val courseCompletionImageRepository: CourseCompletionImageRepository,
+    private val courseLikeHistoryRepository: CourseLikeHistoryRepository,
 ) {
     @Deprecated("정식로그인이 개발되기전 임시로 사용하는 메서드")
     fun getUsers(): List<TemporalUserResponse> = userRepository.findAll().map { TemporalUserResponse(it.id, it.nickname) }
@@ -221,6 +227,20 @@ class UserService(
             objectStorageRepository.upload(ObjectStorageRepository.USER_PROFILE_IMAGE_PATH, profileImage)
         prevProfileImage?.let { objectStorageRepository.delete(it) }
         user.profileImage = profileImageUrl
+    }
+
+    @Transactional
+    fun deleteUser(userId: Long) {
+        val user = userRepository.findByIdOrNull(userId) ?: throw UserNotFoundException(userId)
+        user.profileImage?.let { objectStorageRepository.delete(it) }
+        userOauthInfoRepository.deleteByUser(user)
+        val completionImages = courseCompletionImageRepository.findByUser(user)
+        completionImages.forEach { objectStorageRepository.delete(it.image) }
+        courseCompletionImageRepository.deleteAll(completionImages)
+        courseLikeHistoryRepository.deleteByUser(user)
+        courseCompletionHistoryRepository.deleteByUserId(user.id)
+        termsAgreeHistoryRepository.deleteByUserId(user.id)
+        userRepository.delete(user)
     }
 
     @Transactional

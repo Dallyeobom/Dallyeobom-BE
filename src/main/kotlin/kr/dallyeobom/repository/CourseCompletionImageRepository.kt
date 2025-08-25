@@ -6,6 +6,7 @@ import kr.dallyeobom.dto.CourseImageDto
 import kr.dallyeobom.entity.Course
 import kr.dallyeobom.entity.CourseCompletionHistory
 import kr.dallyeobom.entity.CourseCompletionImage
+import kr.dallyeobom.entity.User
 import kr.dallyeobom.util.getSlice
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
@@ -17,6 +18,8 @@ interface CourseCompletionImageRepository :
     fun findAllByCompletion(completion: CourseCompletionHistory): List<CourseCompletionImage>
 
     fun findAllByCompletionIn(completions: List<CourseCompletionHistory>): List<CourseCompletionImage>
+
+    fun findByUser(user: User): List<CourseCompletionImage>
 }
 
 interface CustomCourseCompletionImageRepository {
