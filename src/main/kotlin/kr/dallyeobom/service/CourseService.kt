@@ -8,6 +8,7 @@ import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
+import kr.dallyeobom.controller.course.response.CourseImageResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.CourseReviewResponse
@@ -149,10 +150,15 @@ class CourseService(
     fun getCourseImages(
         id: Long,
         sliceRequest: SliceRequest,
-    ): SliceResponse<String> {
+    ): SliceResponse<CourseImageResponse> {
         val course = courseRepository.findById(id).getOrNull() ?: throw CourseNotFoundException()
         val images = courseCompletionImageRepository.findSliceByCourse(course, sliceRequest)
-        return SliceResponse.from(images.map { objectStorageRepository.getDownloadUrl(it.image) }, images.lastOrNull()?.id)
+        return SliceResponse.from(
+            images.map {
+                CourseImageResponse(objectStorageRepository.getDownloadUrl(it.image), it.courseCompletionHistoryId)
+            },
+            images.lastOrNull()?.id,
+        )
     }
 
     @Transactional

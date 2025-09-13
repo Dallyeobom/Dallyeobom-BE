@@ -41,6 +41,7 @@ class CustomCourseCompletionImageRepositoryImpl(
             CourseImageDto::class,
             path(CourseCompletionImage::image),
             path(CourseCompletionImage::id),
+            path(CourseCompletionImage::completion)(CourseCompletionHistory::id),
         ).from(
             courseCompletionImageEntity,
             join(CourseCompletionImage::completion),

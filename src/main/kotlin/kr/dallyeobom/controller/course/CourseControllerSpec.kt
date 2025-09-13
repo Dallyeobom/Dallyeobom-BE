@@ -12,6 +12,7 @@ import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
+import kr.dallyeobom.controller.course.response.CourseImageResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.CourseReviewResponse
@@ -77,7 +78,7 @@ interface CourseControllerSpec {
         summary = "유저 들이 인증샷으로 찍어 올린 코스 이미지 목록 조회",
         description = "코스 ID를 입력받아 해당 코스의 이미지 URL들을 조회합니다.",
         responses = [
-            ApiResponse(responseCode = "200", description = "코스 이미지 URL 목록"),
+            ApiResponse(responseCode = "200", description = "코스 이미지 정보 목록"),
             ApiResponse(
                 responseCode = "400",
                 description = """
@@ -98,7 +99,7 @@ interface CourseControllerSpec {
         @Validated
         @ParameterObject
         sliceRequest: SliceRequest,
-    ): SliceResponse<String>
+    ): SliceResponse<CourseImageResponse>
 
     @Operation(
         summary = "코스 정보 수정",

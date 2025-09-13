@@ -5,6 +5,7 @@ import kr.dallyeobom.controller.common.response.SliceResponse
 import kr.dallyeobom.controller.course.request.CourseUpdateRequest
 import kr.dallyeobom.controller.course.request.NearByCourseSearchRequest
 import kr.dallyeobom.controller.course.response.CourseDetailResponse
+import kr.dallyeobom.controller.course.response.CourseImageResponse
 import kr.dallyeobom.controller.course.response.CourseLikeResponse
 import kr.dallyeobom.controller.course.response.CourseRankResponse
 import kr.dallyeobom.controller.course.response.CourseReviewResponse
@@ -60,7 +61,7 @@ class CourseController(
         @PathVariable
         id: Long,
         sliceRequest: SliceRequest,
-    ): SliceResponse<String> = courseService.getCourseImages(id, sliceRequest)
+    ): SliceResponse<CourseImageResponse> = courseService.getCourseImages(id, sliceRequest)
 
     @ResponseStatus(NO_CONTENT)
     @PatchMapping("/{id}", consumes = [MULTIPART_FORM_DATA_VALUE])
