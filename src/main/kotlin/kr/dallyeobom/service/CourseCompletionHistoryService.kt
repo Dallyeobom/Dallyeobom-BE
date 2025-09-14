@@ -51,7 +51,6 @@ class CourseCompletionHistoryService(
     fun createCourseCompletionHistory(
         userId: Long,
         request: CourseCompletionCreateRequest,
-        courseImage: MultipartFile?,
         completionImages: List<MultipartFile>?,
     ): CourseCompletionCreateResponse {
         val user = userRepository.findById(userId).orElseThrow { UserNotFoundException(userId) }
@@ -60,7 +59,7 @@ class CourseCompletionHistoryService(
                 .save(
                     CourseCompletionHistory(
                         user = user,
-                        course = getOrCreateCourseIfNeeded(userId, request, courseImage),
+                        course = getOrCreateCourseIfNeeded(userId, request, null),
                         review = request.review,
                         interval = Duration.ofSeconds(request.interval),
                         path = courseCreateUtil.latLngToLineString(request.latLngPath),
