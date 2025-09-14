@@ -59,7 +59,7 @@ class CourseCompletionHistoryService(
                 .save(
                     CourseCompletionHistory(
                         user = user,
-                        course = getOrCreateCourseIfNeeded(userId, request, null),
+                        course = getOrCreateCourseIfNeeded(userId, request),
                         review = request.review,
                         interval = Duration.ofSeconds(request.interval),
                         path = courseCreateUtil.latLngToLineString(request.latLngPath),
@@ -80,7 +80,6 @@ class CourseCompletionHistoryService(
     private fun getOrCreateCourseIfNeeded(
         userId: Long,
         request: CourseCompletionCreateRequest,
-        courseImage: MultipartFile?,
     ): Course? =
         if (request.courseId != null) {
             requireNull(request.courseVisibility) { "코스 공개 설정 정보가 존재합니다" }
@@ -94,9 +93,7 @@ class CourseCompletionHistoryService(
                     request.courseCreateInfo.name,
                     request.courseCreateInfo.description,
                     request.courseCreateInfo.courseLevel,
-                    courseImage?.let {
-                        saveImage(ObjectStorageRepository.COURSE_IMAGE_PATH, courseImage)
-                    },
+                    null,
                     CourseCreatorType.USER,
                     creatorId = userId,
                     request.latLngPath,
