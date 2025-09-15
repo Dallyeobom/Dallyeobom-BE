@@ -17,7 +17,7 @@ class CourseCompletionHistoryDetailResponse(
     @Schema(description = "유저 ID", example = "1")
     val userId: Long,
     @Schema(description = "코스 리뷰", example = "이 코스는 정말 좋았습니다! 다음에도 또 달리고 싶어요.")
-    val review: String,
+    val review: String?,
     @Schema(description = "소요시간 (초 단위)", example = "3600")
     val interval: Long,
     @Schema(description = "거리 (미터)", example = "5000")

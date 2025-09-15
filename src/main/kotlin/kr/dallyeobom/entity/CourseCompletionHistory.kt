@@ -25,8 +25,8 @@ class CourseCompletionHistory(
     @ManyToOne
     @JoinColumn(nullable = false, updatable = false)
     val user: User,
-    @Column(nullable = false, length = 300)
-    var review: String,
+    @Column(length = 300)
+    var review: String?,
     @Convert(converter = DurationIntervalConverter::class)
     @Column(columnDefinition = "INTERVAL DAY", nullable = false, updatable = false)
     val interval: Duration,

@@ -19,7 +19,7 @@ data class CourseCompletionCreateRequest(
     val courseId: Long?,
     @field:Schema(description = "코스 리뷰", example = "이 코스는 정말 좋았습니다! 다음에도 또 달리고 싶어요.")
     @field:Length(min = 1, max = 300, message = "리뷰는 최소 1자, 최대 300자까지 입력 가능합니다.")
-    var review: String,
+    val review: String?,
     @field:Schema(description = "소요시간 (초 단위)", example = "3600")
     @field:Positive(message = "소요시간은 양수여야 합니다.")
     val interval: Long,

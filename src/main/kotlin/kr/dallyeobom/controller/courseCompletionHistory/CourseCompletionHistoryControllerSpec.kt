@@ -55,9 +55,6 @@ interface CourseCompletionHistoryControllerSpec {
         userId: Long,
         @Validated request: CourseCompletionCreateRequest,
         @MaxFileSize
-        @Schema(description = "코스 대표사진 - 코스 등록시에만 사용하며 없어도됨, 사진의 최대 크기는 1MB")
-        courseImage: MultipartFile?,
-        @MaxFileSize
         @Size(max = MAX_COMPLETION_IMAGE_COUNT, message = "인증샷은 최대 ${MAX_COMPLETION_IMAGE_COUNT}개까지 업로드할 수 있습니다.")
         @Schema(description = "코스 완주 인증샷들 - ${MAX_COMPLETION_IMAGE_COUNT}개까지 업로드 가능, 각 사진의 최대 크기는 1MB")
         completionImages: List<MultipartFile>?,
